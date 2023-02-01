@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1069181573065",
+    "firebase_url": "https://camp2022-shininggamer-default-rtdb.firebaseio.com",
+    "project_id": "camp2022-shininggamer",
+    "storage_bucket": "camp2022-shininggamer.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1069181573065:android:a724f7f63db7a4d375fa18",
+        "android_client_info": {
+          "package_name": "com.firbase.shiningGamer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1069181573065-oviij01f98k3sngfib5j9a1dnjmv0im0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBY08BVs7BwLtusaPs90GpXfZsgwoJU7Vw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1069181573065-oviij01f98k3sngfib5j9a1dnjmv0im0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
