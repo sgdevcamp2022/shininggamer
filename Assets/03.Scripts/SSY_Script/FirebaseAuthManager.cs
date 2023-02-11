@@ -76,7 +76,7 @@ public class FirebaseAuthManager
         {
             if (task.IsCanceled)
             {
-                Debug.LogError("회원 가입 취소");
+                Debug.LogError("로그인 취소");
                 return ;
             }
 
@@ -84,7 +84,7 @@ public class FirebaseAuthManager
             {
                 //실패에 대한 에러가 존재할 예젱
                 option=-1;
-                Debug.LogError("회원 가입 실패");
+                Debug.LogError("로그인 실패");
                 return ;
             }
 

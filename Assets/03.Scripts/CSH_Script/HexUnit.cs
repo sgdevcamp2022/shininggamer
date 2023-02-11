@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using System.IO;
 
@@ -93,6 +94,7 @@ public class HexUnit : MonoBehaviour
 
         transform.localPosition = location.Position;
         orientation = transform.localRotation.eulerAngles.y;
+        SceneManager.LoadScene("KSH_FightScene");
 
         ListPool<HexCell>.Add(pathToTravel);
         pathToTravel = null;

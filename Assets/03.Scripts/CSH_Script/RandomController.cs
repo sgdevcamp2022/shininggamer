@@ -4,23 +4,27 @@ using UnityEngine.UI;
 
 public class RandomController : MonoBehaviour
 {
-    [SerializeField]
-    Image[] MoveBox;
+    int movePercentage;
+    Image[] moveImages;
+    int successCount = 0;
 
-    private int movePercentage;
-    private int successCount = 0;
+    List<int> MyNum;
+    List<bool> SuccessList;
+    [SerializeField] Sprite successImage;
 
-    List<int> MyNum=new List<int>();
-    List<bool> SuccessList=new List<bool>();
-
-    public Sprite successImg;
-
-    public RandomController(int speed)
+    void Awake()
     {
-        movePercentage = speed;
+        MyNum = new List<int>();
+        SuccessList = new List<bool>();
+        moveImages = new Image[5];
+        movePercentage = 80;
+
+        for(int i = 0; i < 5; i++)
+            moveImages[i] = transform.GetChild(i).GetComponent<Image>();
     }
 
-    public int OnRandomPositionNumberClick(){
+    public int OnRandomPositionNumberClick()
+    {
         PickRandomly();
         RollTheDice();
         ShowResult();
@@ -28,23 +32,29 @@ public class RandomController : MonoBehaviour
         return successCount;
     }
 
-    void PickRandomly(){
+    void PickRandomly()
+    {
         MyNum.Clear();
-        for(int i=0;i<movePercentage;i++){
+
+        for(int i = 0; i < movePercentage; i++)
+        {
             int rand = Random.Range(1,101);
             MyNum.Add(rand);
         }
     }
 
-    void RollTheDice(){
+    void RollTheDice()
+    {
         SuccessList.Clear();
-        for(int i=0;i<5;i++){
+
+        for(int i = 0; i < 5; i++)
+        {
             int rand = Random.Range(1,101);
-            if(MyNum.Contains(rand)){
+            
+            if(MyNum.Contains(rand))
                 SuccessList.Add(true);
-            }else{
+            else
                 SuccessList.Add(false);
-            }
         }
     }
 
@@ -54,12 +64,8 @@ public class RandomController : MonoBehaviour
         {
             if (SuccessList[i])
             {
-                Debug.Log("성공");
+                moveImages[i].sprite = successImage;
                 successCount++;
-            }
-            else
-            {
-                Debug.Log("실패");
             }
         }
     }

@@ -16,7 +16,8 @@ public class LoginManager : MonoBehaviour
     Text id;
     [SerializeField]
     Text WindowId;
-
+    [SerializeField]
+    GameObject SignUpUI;
     string email="@naver.com";
     string userid;
     MenuManager menu=null;
@@ -33,7 +34,7 @@ public class LoginManager : MonoBehaviour
         if(userid!=null)
             userid="";
         if(sign){
-            userid +=FirebaseAuthManager.Instance.UserId;
+            userid+=FirebaseAuthManager.Instance.UserId;
             menu.Id=id.text;
             menu.isLogin=true;
             Debug.Log(userid);
@@ -43,10 +44,7 @@ public class LoginManager : MonoBehaviour
     }
 
     public void Create(){
-        
-        Debug.Log(id.text+email);
-        FirebaseAuthManager.Instance.Create(id.text+email,password.text);
-        
+        SignUpUI.SetActive(true);
     }
 
     public void Login(){

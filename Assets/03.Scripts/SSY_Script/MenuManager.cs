@@ -17,6 +17,8 @@ public class MenuManager : MonoBehaviour
     GameObject MenuUI;
     [SerializeField]
     GameObject Warning;
+    [SerializeField]
+    GameObject Player;
 
     string id="";
 
@@ -24,11 +26,13 @@ public class MenuManager : MonoBehaviour
         set{
             if(id=="")
                 id=value;
+            Player.GetComponent<UserInfo>().ID = Id;
         }
         get {
             return id;
         }
     }
+    
     public bool isLogin{
         set{
             _isLogin=value;
@@ -46,7 +50,7 @@ public class MenuManager : MonoBehaviour
 
     public void OnNewGameClick(){
         if(_isLogin){
-            PlayerPrefs.SetString("PlayerID",Id);
+            DontDestroyOnLoad(Player);
             SceneManager.LoadScene("TitleScene");
             //새로운 씬으로 이동
         }else{

@@ -39,6 +39,11 @@ MonoBehaviour:
   - DestroySpaceship
   - Fire
   - RespawnSpaceship
+  - ActivateCharacterSelection
+  - OnActivateCharacterSelection
+  - UpdatePlayerItemList
+  - OnActivatePlayerItem
+  - OnActivatePlayerAvatar
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1
