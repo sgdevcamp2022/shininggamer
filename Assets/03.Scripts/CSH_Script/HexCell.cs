@@ -1,38 +1,71 @@
 using UnityEngine;
+using System.IO;
 using UnityEngine.UI;
 
 public class HexCell : MonoBehaviour
 {
-    [SerializeField]
-    HexCell[] neighbors;
-
-    public HexCoordinates coordinates;
-    public Color color;
     public RectTransform uiRect;
+    public HexCoordinates coordinates;
+    public HexGridChunk chunk;
 
-    public HexCell PathFrom { get; set; }
-    public int SearchHeuristic { get; set; }
-    public HexCell NextWithSamePriority { get; set; }
-    public HexUnit Unit { get; set; }
+    [SerializeField] HexCell[] neighbors;
 
-    public int SearchPhase { get; set; }
-    public int SearchPriority
+    int distance;
+
+    public int TerrainTypeIndex
     {
         get
         {
-            return distance + SearchHeuristic;
+            return terrainTypeIndex;
+        }
+        set
+        {
+            if (terrainTypeIndex != value)
+            {
+                terrainTypeIndex = value;
+                RefreshPosition();
+                Refresh();
+            }
+        }
+    }
+
+    int terrainTypeIndex;
+
+    int elevation = int.MinValue;
+    public int Elevation
+    {
+        get
+        {
+            return elevation;
+        }
+        set
+        {
+            if (elevation == value)
+                return;
+
+            elevation = value;
+            Vector3 position = transform.localPosition;
+            position.y = elevation * HexMetrics.elevationStep;
+            position.y +=
+                (HexMetrics.SampleNoise(position).y * 2f - 1f) *
+                HexMetrics.elevationPerturbStrength;
+            transform.localPosition = position;
+
+            Vector3 uiPosition = uiRect.localPosition;
+            uiPosition.z = -position.y;
+            uiRect.localPosition = uiPosition;
+
+            Refresh();
         }
     }
 
     public Vector3 Position
     {
-        get 
+        get
         {
             return transform.localPosition;
         }
     }
-
-    int distance;
 
     public int Distance
     {
@@ -46,6 +79,16 @@ public class HexCell : MonoBehaviour
         }
     }
 
+    public HexCell PathFrom { get; set; }
+
+    public int SearchHeuristic { get; set; }
+
+    public HexCell NextWithSamePriority { get; set; }
+
+    public int SearchPhase { get; set; }
+
+    public HexUnit Unit { get; set; }
+
     public HexCell GetNeighbor(HexDirection direction)
     {
         return neighbors[(int)direction];
@@ -57,10 +100,24 @@ public class HexCell : MonoBehaviour
         cell.neighbors[(int)direction.Opposite()] = this;
     }
 
-    public void SetLabel(string text)
+    public HexEdgeType GetEdgeType(HexDirection direction)
     {
-        UnityEngine.UI.Text label = uiRect.GetComponent<Text>();
-        label.text = text;
+        return HexMetrics.GetEdgeType(
+            elevation, neighbors[(int)direction].elevation
+        );
+    }
+
+    public HexEdgeType GetEdgeType(HexCell otherCell)
+    {
+        return HexMetrics.GetEdgeType(
+            elevation, otherCell.elevation
+        );
+    }
+
+    public void DisableHighlight()
+    {
+        Image highlight = uiRect.GetChild(0).GetComponent<Image>();
+        highlight.enabled = false;
     }
 
     public void EnableHighlight(Color color)
@@ -70,9 +127,63 @@ public class HexCell : MonoBehaviour
         highlight.enabled = true;
     }
 
-    public void DisableHighlight()
+    public int SearchPriority
     {
-        Image highlight = uiRect.GetChild(0).GetComponent<Image>();
-        highlight.enabled = false;
+        get
+        {
+            return distance + SearchHeuristic;
+        }
+    }
+
+    public void Save(BinaryWriter writer)
+    {
+        writer.Write((byte)terrainTypeIndex);
+        writer.Write((byte)elevation);
+    }
+
+    public void Load(BinaryReader reader)
+    {
+        terrainTypeIndex = reader.ReadByte();
+        elevation = reader.ReadByte();
+        RefreshPosition();
+    }
+
+    void Refresh()
+    {
+        if(chunk)
+        {
+            chunk.Refresh();
+
+            for (int i = 0; i < neighbors.Length; i++)
+            {
+                HexCell neighbor = neighbors[i];
+
+                if (neighbor != null && neighbor.chunk != chunk)
+                    neighbor.chunk.Refresh();
+            }
+
+            if (Unit)
+                Unit.ValidateLocation();
+        }
+    }
+
+    void RefreshPosition()
+    {
+        Vector3 position = transform.localPosition;
+        position.y = elevation * HexMetrics.elevationStep;
+        position.y +=
+            (HexMetrics.SampleNoise(position).y * 2f - 1f) *
+            HexMetrics.elevationPerturbStrength;
+        transform.localPosition = position;
+
+        Vector3 uiPosition = uiRect.localPosition;
+        uiPosition.z = -position.y;
+        uiRect.localPosition = uiPosition;
+    }
+
+    public void SetLabel(string text)
+    {
+        Text label = uiRect.GetComponent<Text>();
+        label.text = text;
     }
 }

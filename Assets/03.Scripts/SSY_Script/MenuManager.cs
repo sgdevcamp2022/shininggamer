@@ -22,11 +22,15 @@ public class MenuManager : MonoBehaviour
 
     string id="";
 
+    void Start(){
+        Warning.transform.Find("Text").GetComponent<Text>().text="로그인을 해주세요.";
+            
+    }
     public string Id{
         set{
             if(id=="")
                 id=value;
-            Player.GetComponent<UserInfo>().ID = Id;
+            Player.GetComponent<UserInfo>().ID=Id;    
         }
         get {
             return id;

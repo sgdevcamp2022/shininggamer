@@ -6,6 +6,7 @@ using Photon.Realtime;
 using TMPro;
 using UnityEngine.UI;
 using System.Linq;
+using System;
 
 public class NetworkManager : MonoBehaviourPunCallbacks
 {
@@ -18,9 +19,9 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     [Header("Lobby Panel")]
     public GameObject lobbyPanel;
-    public ScrollRect roomScrollView;
+    public GameObject roomScrollView;
     public GameObject roomButton;
-    private List<RoomInfo> myRoomList = new List<RoomInfo>();
+    static public List<RoomInfo> roomList = new List<RoomInfo>();
 
     [Header("Room Panel")]
     public GameObject roomPanel;
@@ -30,23 +31,23 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     [Header("Cannot Find Room Panel")]
     public GameObject cannotFindRoomPanel;
 
+    [Header("Cannot Join Room Panel")]
+    public GameObject cannotJoinRoomPanel;
+
     [Header("Player Selection")]
     public GameObject characterSelectionPanel;
     public PlayerItem[] playerItems;
 
     public TMP_Text loadingText;
 
-    private bool gameStart;
-
     private void Awake()
     {
         PhotonNetwork.NickName = GameObject.Find("Player").GetComponent<UserInfo>().ID;
         nickname.text = PhotonNetwork.NickName;
+        //PhotonNetwork.NickName = "test___";
         PhotonNetwork.AutomaticallySyncScene = true;
 
         pv = GetComponent<PhotonView>();
-
-        gameStart = false;
     }
 
     #region Connect to the lobby 
@@ -84,19 +85,19 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     #region Update the room list
     public override void OnRoomListUpdate(List<RoomInfo> roomList)
     {
-        int roomCount = roomList.Count;
-        for (int i = 0; i < roomCount; i++)
+        for (int i = 0; i < roomList.Count; i++)
         {
             if (!roomList[i].RemovedFromList)
             {
-                if (!myRoomList.Contains(roomList[i]))
+                if (!NetworkManager.roomList.Contains(roomList[i]))
                 {
-                    myRoomList.Add(roomList[i]);
+                    print(roomList[i].CustomProperties["start"]);
+                    NetworkManager.roomList.Add(roomList[i]);
                 }
             }
-            else if (myRoomList.IndexOf(roomList[i]) != -1)
+            else if (NetworkManager.roomList.IndexOf(roomList[i]) != -1)
             {
-                myRoomList.RemoveAt(myRoomList.IndexOf(roomList[i]));
+                NetworkManager.roomList.RemoveAt(NetworkManager.roomList.IndexOf(roomList[i]));
             }
         }
         MyRoomListRenewal();
@@ -114,11 +115,12 @@ public class NetworkManager : MonoBehaviourPunCallbacks
             }
         }
 
-        for (int i = 0; i < myRoomList.Count; i++)
+        for (int i = 0; i < NetworkManager.roomList.Count; i++)
         {
             GameObject newRoomButton = Instantiate(roomButton, roomScrollView.transform.Find("Viewport").Find("Content").transform) as GameObject;
-            newRoomButton.transform.Find("GameName").GetComponent<TMP_Text>().text = myRoomList[i].Name;
-            newRoomButton.transform.Find("Status").GetComponent<TMP_Text>().text = "Can Join";
+            newRoomButton.transform.Find("GameName").GetComponent<TMP_Text>().text = NetworkManager.roomList[i].Name;
+            //newRoomButton.transform.Find("Status").GetComponent<TMP_Text>().text = "Can Join";
+            roomScrollView.GetComponent<RoomManager>().CheckRoomsStatus();
         }
     }
     #endregion
@@ -140,10 +142,14 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         }
 
         RoomOptions options = new RoomOptions();
-        options.MaxPlayers = 3;
+        options.MaxPlayers = 2;
         options.EmptyRoomTtl = 0;
         options.BroadcastPropsChangeToAll = true;
+        options.CustomRoomProperties = new ExitGames.Client.Photon.Hashtable { { "start", false } };
+        options.CustomRoomPropertiesForLobby = new string[] { "start" };
+        options.PlayerTtl= 0;
         PhotonNetwork.CreateRoom(PhotonNetwork.LocalPlayer.NickName, options, TypedLobby.Default);
+        
     }
 
     public override void OnCreatedRoom()
@@ -185,6 +191,18 @@ public class NetworkManager : MonoBehaviourPunCallbacks
             players[i].gameObject.SetActive(true);
             players[i].text = PhotonNetwork.PlayerList[i].NickName;
         }
+
+        int currentRoom = -1;
+        for (int i = 0; i < NetworkManager.roomList.Count; i++)
+        {
+            if (PhotonNetwork.CurrentRoom == NetworkManager.roomList[i])
+            {
+                currentRoom = i;
+                break;
+            }
+        }
+
+        roomScrollView.GetComponent<RoomManager>().CheckCurrentRoomStatus();
     }
 
     public void JoinRandomRoom()
@@ -194,7 +212,11 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public override void OnJoinRoomFailed(short returnCode, string message)
     {
-        cannotFindRoomPanel.SetActive(true);
+        if (returnCode == 32758)
+            cannotFindRoomPanel.SetActive(true);
+        else if (returnCode == 32765)
+            cannotJoinRoomPanel.SetActive(true);
+
         print(PhotonNetwork.NickName + " couldn't join the room: " + message);
     }
 
@@ -207,6 +229,8 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         print("newPlayerIndex: " + newPlayerIndex);
         players[newPlayerIndex].gameObject.SetActive(true);
         players[newPlayerIndex].text = PhotonNetwork.PlayerList[newPlayerIndex].NickName;
+
+        roomScrollView.GetComponent<RoomManager>().CheckCurrentRoomStatus();
     }
 
     public void LeaveRoom()
@@ -214,6 +238,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         PhotonNetwork.LeaveRoom(PhotonNetwork.CurrentRoom.PlayerCount == 1 ? true : false);
         roomPanel.SetActive(false);
         lobbyPanel.SetActive(true);
+        roomScrollView.GetComponent<RoomManager>().CheckRoomsStatus();
     }
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
@@ -231,14 +256,14 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     #endregion
 
     #region Character selection
-    public void ShowCharacterSelection(bool isActive)
+    public void ActivateCharacterSelectionPanel(bool isActive)
     {
-        pv.RPC("OnActivateCharacterSelection", RpcTarget.All, isActive);
+        pv.RPC("RPCActivateCharacterSelection", RpcTarget.All, isActive);
         //photonView.RPC("UpdatePlayerItemList", RpcTarget.All);
     }
 
     [PunRPC]
-    void OnActivateCharacterSelection(bool isActive)
+    void RPCActivateCharacterSelection(bool isActive)
     {
         characterSelectionPanel.SetActive(isActive);
         lobbyPanel.SetActive(!isActive);
@@ -267,14 +292,21 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public void ShowPlayerAvatar(bool isActive)
     {
         int localPlayerId = PhotonNetwork.CurrentRoom.Players.FirstOrDefault(x => x.Value.NickName == PhotonNetwork.NickName).Key;
-        pv.RPC("OnActivatePlayerAvatar", RpcTarget.All, isActive, localPlayerId - 1);
+        pv.RPC("RPCActivatePlayerAvatar", RpcTarget.All, isActive, localPlayerId - 1);
     }
 
     [PunRPC]
-    void OnActivatePlayerAvatar(bool isActive, int playerId)
+    void RPCActivatePlayerAvatar(bool isActive, int playerId)
     {
+        if (isActive)
+        {
+            //PhotonNetwork.LocalPlayer.SetCustomProperties(new ExitGames.Client.Photon.Hashtable());
+        }
         playerItems[playerId].transform.GetChild(1).gameObject.SetActive(isActive);
         playerItems[playerId].transform.GetChild(0).gameObject.SetActive(!isActive);
+
+        // 캐릭터 창에서 나갈 때 player의 기존의 properties 폐기
+            
     }
     #endregion
 
@@ -289,25 +321,39 @@ public class NetworkManager : MonoBehaviourPunCallbacks
             startButton.SetActive(false);
         }
 
-        if (characterSelectionPanel.activeSelf && PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey("isReady"))
-        {
-            int playersReady = 0;
-            foreach (KeyValuePair<int, Player> player in PhotonNetwork.CurrentRoom.Players)
-            {
-                if ((bool)player.Value.CustomProperties["isReady"] == true)
-                    playersReady++;
-            }
-            if (!gameStart && playersReady == PhotonNetwork.CurrentRoom.MaxPlayers)
-            {
-                gameStart = true;
-                LoadScene("KSH_FightScene");
-            }
-        }
+        CheckPlayersReadyAndStartGame();
     }
 
     void LoadScene(string scene)
     {
         PhotonNetwork.LoadLevel(scene);
+    }
+
+    public void CheckPlayersReadyAndStartGame()
+    {
+        if (!characterSelectionPanel.activeSelf || (bool)PhotonNetwork.CurrentRoom.CustomProperties["start"])
+            return;
+
+        try
+        {
+            int playersReady = 0;
+            foreach (KeyValuePair<int, Player> player in PhotonNetwork.CurrentRoom.Players)
+            {
+                if ((bool)player.Value.CustomProperties["isReady"])
+                    playersReady++;
+            }
+            if (playersReady == PhotonNetwork.CurrentRoom.MaxPlayers)
+            {
+                PhotonNetwork.CurrentRoom.CustomProperties["start"] = true;
+                Dictionary<int, CharacterType> characterTypes = GameObject.FindObjectOfType<FirebaseLoadManager>().CharacterOp;
+                GameObject.Find("Player").GetComponent<UserInfo>().CType = characterTypes[(int)PhotonNetwork.LocalPlayer.CustomProperties["avatarIndex"]];
+                LoadScene("TilemapScene");
+            }
+        }
+        catch (NullReferenceException e)
+        {
+            print("initialize player properties");
+        }
     }
 
 

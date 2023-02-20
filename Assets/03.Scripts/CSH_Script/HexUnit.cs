@@ -1,16 +1,19 @@
 using UnityEngine;
-using System.Collections;
-using UnityEngine.SceneManagement;
 using System.Collections.Generic;
+using System.Collections;
 using System.IO;
+using UnityEngine.SceneManagement;
+using Photon.Pun;
 
-public class HexUnit : MonoBehaviour
+public class HexUnit : MonoBehaviourPunCallbacks
 {
+    public PhotonView pv;
+
+    public static List<HexUnit> unitPrefab;
+
+    List<HexCell> pathToTravel;
     const float travelSpeed = 4f;
     const float rotationSpeed = 180f;
-
-    public static HexUnit unitPrefab;
-    List<HexCell> pathToTravel;
 
     public HexCell Location
     {
@@ -28,7 +31,6 @@ public class HexUnit : MonoBehaviour
             transform.localPosition = value.Position;
         }
     }
-
     HexCell location;
 
     public float Orientation
@@ -43,19 +45,72 @@ public class HexUnit : MonoBehaviour
             transform.localRotation = Quaternion.Euler(0f, value, 0f);
         }
     }
-
     float orientation;
+
+    public int UnitType
+    {
+        get
+        {
+            return unitType;
+        }
+        set
+        {
+            unitType = value;
+        }
+    }
+    int unitType;
+
+    public string CharacterName
+    {
+        get
+        {
+            return characterName;
+        }
+        set
+        {
+            characterName = value;
+        }
+    }
+    string characterName;
+
+    public int Turn
+    {
+        get
+        {
+            return turn;
+        }
+        set
+        {
+            turn = value;
+        }
+    }
+    int turn;
+
+    public override void OnEnable()
+    {
+        if (location)
+            transform.localPosition = location.Position;
+    }
 
     public void Travel(List<HexCell> path)
     {
         Location = path[path.Count - 1];
         pathToTravel = path;
+        pv.RPC("RPCTravelCoroutine", RpcTarget.All);
+    }
+
+    [PunRPC]
+    void RPCTravelCoroutine()
+    {
         StopAllCoroutines();
         StartCoroutine(TravelPath());
     }
 
     IEnumerator TravelPath()
     {
+        GetComponent<Animator>().SetBool("IsWalking", true);
+        GetComponent<AudioSource>().Play();
+
         Vector3 a, b, c = pathToTravel[0].Position;
         transform.localPosition = c;
         yield return LookAt(pathToTravel[1].Position);
@@ -69,7 +124,8 @@ public class HexUnit : MonoBehaviour
 
             for (; t < 1f; t += Time.deltaTime * travelSpeed)
             {
-                transform.localPosition = Vector3.Lerp(a, b, t);
+                transform.localPosition = Bezier.GetPoint(a, b, c, t);
+                orientation = transform.localRotation.eulerAngles.y;
                 Vector3 d = Bezier.GetDerivative(a, b, c, t);
                 d.y = 0f;
                 transform.localRotation = Quaternion.LookRotation(d);
@@ -86,6 +142,7 @@ public class HexUnit : MonoBehaviour
         for (; t < 1f; t += Time.deltaTime * travelSpeed)
         {
             transform.localPosition = Bezier.GetPoint(a, b, c, t);
+            orientation = transform.localRotation.eulerAngles.y;
             Vector3 d = Bezier.GetDerivative(a, b, c, t);
             d.y = 0f;
             transform.localRotation = Quaternion.LookRotation(d);
@@ -93,11 +150,11 @@ public class HexUnit : MonoBehaviour
         }
 
         transform.localPosition = location.Position;
-        orientation = transform.localRotation.eulerAngles.y;
-        SceneManager.LoadScene("KSH_FightScene");
-
         ListPool<HexCell>.Add(pathToTravel);
         pathToTravel = null;
+
+        GetComponent<Animator>().SetBool("IsWalking", false);
+        GetComponent<AudioSource>().Stop();
     }
 
     IEnumerator LookAt(Vector3 point)
@@ -108,10 +165,11 @@ public class HexUnit : MonoBehaviour
             Quaternion.LookRotation(point - transform.localPosition);
 
         float angle = Quaternion.Angle(fromRotation, toRotation);
-        float speed = rotationSpeed / angle;
 
         if(angle > 0f)
         {
+            float speed = rotationSpeed / angle;
+
             for (float t = Time.deltaTime * speed; t < 1f; t += Time.deltaTime * speed)
             {
                 transform.localRotation =
@@ -124,6 +182,16 @@ public class HexUnit : MonoBehaviour
         orientation = transform.localRotation.eulerAngles.y;
     }
 
+    /*void OnTriggerEnter(Collider other)
+    {
+        SceneManager.LoadScene("KSH_FightScene");
+    }*/
+
+    public void ValidateLocation()
+    {
+        transform.localPosition = location.Position;
+    }
+
     public void Die()
     {
         location.Unit = null;
@@ -134,19 +202,27 @@ public class HexUnit : MonoBehaviour
     {
         location.coordinates.Save(writer);
         writer.Write(orientation);
+        writer.Write((float)unitType);
     }
 
-    public static void Load(BinaryReader reader)
+    public static void Load(BinaryReader reader, HexGrid grid)
     {
         HexCoordinates coordinates = HexCoordinates.Load(reader);
         float orientation = reader.ReadSingle();
+        float unitType = reader.ReadSingle();
+        grid.AddUnit(Instantiate(unitPrefab[(int)unitType]), grid.GetCell(coordinates), orientation, (int)unitType);
     }
 
-    void OnEnable()
+    public bool IsValidDestination(HexCell cell)
     {
-        if (location)
+        if(cell.Unit != null && !(cell.Unit.CompareTag("Player")))
         {
-            transform.localPosition = location.Position;
+            if (cell.Unit.tag.Substring(0, 7) == "Monster")
+                return true;
+            else
+                return false;
         }
+
+        return true;
     }
 }

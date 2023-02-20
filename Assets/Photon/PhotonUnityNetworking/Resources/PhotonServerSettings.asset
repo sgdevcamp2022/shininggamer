@@ -44,6 +44,17 @@ MonoBehaviour:
   - UpdatePlayerItemList
   - OnActivatePlayerItem
   - OnActivatePlayerAvatar
+  - OnReadyButtonColorChanged
+  - OnPlayerReady
+  - OnLoad
+  - OnSave
+  - OnStartSelection
+  - DoMove
+  - RPCActivateCharacterSelection
+  - RPCActivatePlayerAvatar
+  - RPCPlayerReady
+  - RPCTravel
+  - RPCTravelCoroutine
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

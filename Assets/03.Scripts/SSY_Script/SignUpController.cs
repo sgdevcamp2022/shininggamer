@@ -2,12 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
+
 public class SignUpController : MonoBehaviour
 {
     [SerializeField]
     Text Id;
     [SerializeField]
-    InputField passwd;
+    InputField password;
     [SerializeField]
     InputField rePasswd;
     [SerializeField]
@@ -15,31 +17,52 @@ public class SignUpController : MonoBehaviour
     [SerializeField]
     GameObject []Warnings;
 
-    string password="";
+    void Start(){
+        FirebaseAuthManager.Instance.LoginState+=OnChangedState;
+        WarningPanel.gameObject.transform.Find("Text").GetComponent<Text>().text="빈칸을 채워주시길 바랍니다.";
+    }
     // Update is called once per frame
     void Update()
     {
-        if(!Id.text.Contains("@")){
-            Warnings[0].gameObject.SetActive(true);
-        }else{
-            Warnings[0].gameObject.SetActive(false);
+        try{
+            if(!Id.text.Contains("@")){
+                Warnings[0].gameObject.SetActive(true);
+            }else{
+                Warnings[0].gameObject.SetActive(false);
+            }
+
+            if(0!=password.text.CompareTo(rePasswd.text)){
+                Warnings[1].gameObject.SetActive(true);
+            }else{
+                Warnings[1].gameObject.SetActive(false);
+            }
+        }catch(AggregateException e){
+            Debug.Log("에러잡기");
         }
 
     }
 
+    void OnChangedState(bool sign){
+        if(sign){
+            this.gameObject.SetActive(false);
+        }
+    }
     public void OnClick(){
-        password=(string)passwd.text;
-        if(0!=passwd.text.CompareTo(rePasswd.text)){
-            Warnings[1].gameObject.SetActive(true);
-        }else{
+
+        if(password.text==""||Id.text==""){
+            WarningPanel.gameObject.SetActive(true);
+            return;
+        }
+
+       if(0==password.text.CompareTo(rePasswd.text)){
             Warnings[1].gameObject.SetActive(false);
-            //FirebaseAuthManager.Instance.Create(Id,password);
+            FirebaseAuthManager.Instance.Create(Id.text,password.text);
         }
         this.gameObject.SetActive(false);
     }
 
     public void OnCancelClick (){
-
+        this.gameObject.SetActive(false);
     }
 
 }

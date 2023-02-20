@@ -3,7 +3,6 @@ using System.Collections.Generic;
 public class HexCellPriorityQueue
 {
     List<HexCell> list = new List<HexCell>();
-
     int count = 0;
     int minimum = int.MaxValue;
 
@@ -33,7 +32,6 @@ public class HexCellPriorityQueue
     public HexCell Dequeue()
     {
         count -= 1;
-
         for (; minimum < list.Count; minimum++)
         {
             HexCell cell = list[minimum];
@@ -44,7 +42,6 @@ public class HexCellPriorityQueue
                 return cell;
             }
         }
-
         return null;
     }
 
@@ -53,11 +50,12 @@ public class HexCellPriorityQueue
         HexCell current = list[oldPriority];
         HexCell next = current.NextWithSamePriority;
 
-        if(current == cell)
+        if (current == cell)
             list[oldPriority] = next;
         else
         {
-            while(next != cell ) {
+            while (next != cell)
+            {
                 current = next;
                 next = current.NextWithSamePriority;
             }

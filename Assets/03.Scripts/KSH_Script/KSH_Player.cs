@@ -7,54 +7,38 @@ public class KSH_Player : MonoBehaviour
     Animator playerAnim;
     Transform playerTr;
 
-    public enum PlayerStatus {   };
-    public enum PlayerJop { warrior, archeor, theif, magicion };
+    public enum PlayerJop { warrior, archor, magician };
     public enum PlayerAnimStat { attack, die, hit };
 
     float power, dex, luk, mp, hp;
+    public bool playerAttackEnd;
 
     PlayerJop playerJop;
-
-    public GameObject playerStatUI;
     Animator playerAnimator;
 
+    [SerializeField]
+    GameObject targetMonster;
     private void Awake()
     {
         playerAnimator = GetComponent<Animator>();
+        targetMonster = GameObject.Find("KSH_Slime");
     }
-
     
-
-
     void PlayerBaseSetting()
     {
-        
         switch (playerJop)
         {
             case PlayerJop.warrior:
                 break;
-            case PlayerJop.archeor:
+            case PlayerJop.archor:
                 break;
-            case PlayerJop.theif:
-                break;
-            case PlayerJop.magicion:
+            case PlayerJop.magician:
                 break;
         }
     }
-
-    public void MyTurn()
-    {
-        playerStatUI.SetActive(true);
-    }
-
-
-
     public void PlayerAttack( )
     {
-
         StartCoroutine(IEPlayerAttack());
-        playerStatUI.SetActive(false);
-        
     }
 
     IEnumerator IEPlayerAttack()
@@ -73,29 +57,38 @@ public class KSH_Player : MonoBehaviour
         }
         yield return new WaitForSeconds(0.33f);
         playerAnimator.SetTrigger("Attack");
+        StartCoroutine(HitDamage(damage));
 
         
         moveTime = 0;
         yield return new WaitForSeconds(1f);
         playerAnimator.SetTrigger("Jump");
-        if (GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Jump"))
-        { 
 
-
-        }
         while (moveTime <= moveMaxTime)
         {
             transform.position = Vector3.MoveTowards(transform.position, originPos, Time.deltaTime * 7f);
             moveTime += Time.deltaTime;
             yield return null;
         }
-        playerStatUI.SetActive(true);
+        yield return null;
+        playerAttackEnd = true;
+    }
+
+    public int damage = 10;
+
+    public IEnumerator OnDamage(int damage, GameObject target)
+    {
+        while (true)
+        {
+            yield return null;
+        }
+    }
+
+    public IEnumerator HitDamage(int damage)
+    {
+        targetMonster.GetComponent<KSH_Monster>().damage = damage;
+        StartCoroutine(targetMonster.GetComponent<KSH_Monster>().HitMotion()); 
         yield return null;
     }
 
-    IEnumerator MonsterAttacted()
-    {
-        //monsterDamageLogic
-        yield return null;
-    }
 }

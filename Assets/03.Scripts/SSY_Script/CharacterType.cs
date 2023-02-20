@@ -49,19 +49,19 @@ public class CharacterType{
 
     public string MagicDefense{
         set{
-            _PhysicalDefense=value;
+            _MagicDefense=value;
         }
         get{
-            return _PhysicalDefense;
+            return _MagicDefense;
         }
     }
 
     public string Recognition{
         set{
-            _Speed=value;
+            _Recognition=value;
         }
         get{
-            return _Speed;
+            return _Recognition;
         }
     }
 
@@ -76,10 +76,10 @@ public class CharacterType{
 
     public string Speed{
         set{
-            _Power=value;
+            _Speed=value;
         }
         get{
-            return _Power;
+            return _Speed;
         }
     }
 
@@ -107,6 +107,28 @@ public class CharacterType{
         }
         get{
             return _Vitality;
+        }
+    }
+
+    public string Power
+    {
+        set { 
+            _Power=value;
+        }
+        get { 
+            return _Power;
+        }
+    }
+
+    public string Intellect
+    {
+        set
+        {
+            _Intellect = value;
+        }
+        get
+        {
+            return _Intellect;
         }
     }
 }

@@ -6,29 +6,28 @@ using UnityEngine.EventSystems;
 
 public class KSH_FightManager : MonoBehaviour
 {
-    public GameObject ksh_Player;
-    public GameObject ksh_Monster;
+    public GameObject[] ksh_Player;
+    public GameObject[] ksh_Monster;
 
     public GameObject playerActionStat;
     public GameObject diceLayout;
 
-    public Transform playerStartPos;
-    public Transform monsterStartPos;
+    public Transform[] playerStartPos;
+    public Transform[] monsterStartPos;
 
     public Transform[] turnCameraPos; //0 - start, 1 - player, 2 - monster
 
     public enum FightStatus {startFight, fighting, playerTurn ,monsterTurn };
 
-    public bool playerTurn;
+    public bool isPlayerTurn;
     public bool settingComplet;
 
     public Button[] toDoButton;
 
-
     private void Start()
     {
         StartCoroutine(FightGameController());
-        playerTurn = true;
+        isPlayerTurn = true;
     }
 
     private void Update()
@@ -39,7 +38,7 @@ public class KSH_FightManager : MonoBehaviour
     public void CameraPosSetting()
     {
         if (!settingComplet) return;
-        if (playerTurn)
+        if (isPlayerTurn)
         {
             turnCameraPos[0].position = Vector3.Lerp(turnCameraPos[0].position, turnCameraPos[1].position,Time.deltaTime);
             turnCameraPos[0].rotation = Quaternion.Lerp(turnCameraPos[0].rotation, turnCameraPos[1].rotation, Time.deltaTime);
@@ -58,41 +57,41 @@ public class KSH_FightManager : MonoBehaviour
 
     void PlayerTurn()
     {
-        if(!playerActionStat.activeSelf && settingComplet)
+        if(!playerActionStat.activeSelf && settingComplet && isPlayerTurn && !ksh_Player[0].GetComponent<KSH_Player>().playerAttackEnd)
         {
             playerActionStat.SetActive(true);
-
         }
-        else
+        if (ksh_Player[0].GetComponent<KSH_Player>().playerAttackEnd)
         {
-            playerActionStat.SetActive(false);
+            isPlayerTurn = false;
         }
-    }
 
-    void TurnSetting()
-    {
-        
     }
-
-    void GameStatusCheck()
-    {
-        
-    }
-
     
-
     IEnumerator FightGameController()
     {
         while (true)
         {
-            if (playerTurn)
+            if (isPlayerTurn)
             {
                 PlayerTurn();
+            }
+            else
+            {
+                MonsterTurn();
             }
 
             yield return null;
         }
     }
 
+    void MonsterTurn()
+    {
+        if (playerActionStat.activeSelf && settingComplet && !isPlayerTurn)
+        {
+            playerActionStat.SetActive(false);
+            
+        }
+    }
 
 }

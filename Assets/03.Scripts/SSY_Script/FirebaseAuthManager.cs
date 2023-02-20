@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using Firebase.Auth;
 using System;
 
@@ -56,19 +57,19 @@ public class FirebaseAuthManager
         {
             if (task.IsCanceled)
             {
-                Debug.LogError("회원 가입 취소");
+                Debug.LogError("CreateUserWithEmailAndPasswordAsync was canceled.");
                 return ; //회원 가입 취소
             }
 
             if (task.IsFaulted)
             {
-                Debug.LogError("회원 가입 실패");
+                Debug.LogError("CreateUserWithEmailAndPasswordAsync encountered an error: " + task.Exception);
                 return ; //회원가입실패
             }
 
             FirebaseUser newUser = task.Result;
-
         });
+        
     }
 
     public void Login(string email,string password){
@@ -82,8 +83,6 @@ public class FirebaseAuthManager
 
             if (task.IsFaulted)
             {
-                //실패에 대한 에러가 존재할 예젱
-                option=-1;
                 Debug.LogError("로그인 실패");
                 return ;
             }

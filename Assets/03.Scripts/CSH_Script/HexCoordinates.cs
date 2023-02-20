@@ -6,6 +6,7 @@ public struct HexCoordinates
 {
     [SerializeField]
     private int x, z;
+
     public int X
     {
         get
@@ -13,6 +14,7 @@ public struct HexCoordinates
             return x;
         }
     }
+
     public int Y
     {
         get
@@ -20,6 +22,7 @@ public struct HexCoordinates
             return -X - Z;
         }
     }
+
     public int Z
     {
         get
@@ -39,10 +42,22 @@ public struct HexCoordinates
         return new HexCoordinates(x - z / 2, z);
     }
 
+    public override string ToString()
+    {
+        return "(" +
+            X.ToString() + ", " + Y.ToString() + ", " + Z.ToString() + ")";
+    }
+
+    public string ToStringOnSeparateLines()
+    {
+        return X.ToString() + "\n" + Y.ToString() + "\n" + Z.ToString();
+    }
+
     public static HexCoordinates FromPosition(Vector3 position)
     {
         float x = position.x / (HexMetrics.innerRadius * 2f);
         float y = -x;
+
         float offset = position.z / (HexMetrics.outerRadius * 3f);
         x -= offset;
         y -= offset;
@@ -66,19 +81,9 @@ public struct HexCoordinates
                 iZ = -iX - iY;
             }
         }
+
         return new HexCoordinates(iX, iZ);
     }
-    public override string ToString()
-    {
-        return "(" +
-            X.ToString() + ", " + Y.ToString() + ", " + Z.ToString() + ")";
-    }
-
-    public string ToStringOnSeparateLines()
-    {
-        return X.ToString() + "\n" + Y.ToString() + "\n" + Z.ToString();
-    }
-
     public int DistanceTo(HexCoordinates other)
     {
         return
