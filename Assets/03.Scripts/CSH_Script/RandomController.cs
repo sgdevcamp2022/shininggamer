@@ -5,6 +5,19 @@ using UnityEngine.UI;
 
 public class RandomController : MonoBehaviour
 {
+    public bool IsPlayerTurn
+    {
+        get
+        {
+            return isPlayerTurn;
+        }
+        set
+        {
+            isPlayerTurn = value;
+        }
+    }
+    bool isPlayerTurn;
+
     public int Speed
     {
         get
@@ -35,6 +48,7 @@ public class RandomController : MonoBehaviour
     List<bool> SuccessList;
     [SerializeField] Sprite successImage;
     [SerializeField] Sprite failImage;
+    [SerializeField] Sprite defaultImage;
     GameObject gameManager;
 
     void Awake()
@@ -50,6 +64,7 @@ public class RandomController : MonoBehaviour
 
     public void OnRandomPositionNumberClick()
     {
+        Debug.Log("ео: " + isPlayerTurn);
         PickRandomly();
         RollTheDice();
         StopAllCoroutines();
@@ -95,7 +110,8 @@ public class RandomController : MonoBehaviour
             if (SuccessList[i])
             {
                 moveImages[i].sprite = successImage;
-                successCount++;
+                if (isPlayerTurn)
+                    successCount++;
                 yield return new WaitForSeconds(0.3f);
             }
             else
@@ -105,10 +121,20 @@ public class RandomController : MonoBehaviour
             }
         }
 
-        gameManager.GetComponent<GameManager>().SetMoveCount(successCount);
+        print("successCount: " + successCount);
+        print("isPlayerTurn: " + isPlayerTurn);
+        if (isPlayerTurn)
+        {
+            gameManager.GetComponent<GameManager>().SetMoveCount(successCount);
+            successCount = 0;
+            isPlayerTurn = false;
+        }
         yield return new WaitForSeconds(1.5f);
 
         for (int i = 0; i < moveImages.Length; i++)
+        {
+            moveImages[i].GetComponent<Image>().sprite = defaultImage;
             moveImages[i].GetComponent<Image>().enabled = false;
+        }
     }
 }

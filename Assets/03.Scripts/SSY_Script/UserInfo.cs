@@ -6,18 +6,23 @@ using UnityEngine.SceneManagement;
 
 public class UserInfo : MonoBehaviour
 {
+    string characterName;
+    string monsters;
     string _id;
     CharacterType _ctype;
     string findCtype;
-    string _fightMonsterName;
+    string playerHp;
+    [SerializeField]
+    int damage;
+    bool isFirstLoad;
 
 //삭제 부분
     public UserInfo(string id){
         _id=id;
         _ctype=null;
         findCtype="";
-        _fightMonsterName="";
     }
+
     void OnEnable()
     {
     	  // 씬 매니저의 sceneLoaded에 체인을 건다.
@@ -33,6 +38,15 @@ public class UserInfo : MonoBehaviour
         }
     }
 
+    public int Damage{
+        get{
+            return damage;
+        }
+        set{
+            damage=value;
+        }
+    }
+
     public CharacterType CType{
         get{
             return _ctype;
@@ -42,26 +56,40 @@ public class UserInfo : MonoBehaviour
         }
     } 
 
-    public string FightMonsterName{
-        get{
-            return _fightMonsterName;
-        }
-        set{
-            _fightMonsterName=value;
+
+    public string CharacterType
+    {
+        get
+        {
+            return characterName;
         }
     }
-    
-    void OnTriggerEnter(Collider other)
+
+    public string Monsters
     {
-        if(!other.gameObject.CompareTag("Player"))
+        get
         {
-            if (other.gameObject.tag.Substring(0, 7) == "Monster"){
-                _fightMonsterName=other.gameObject.tag.Replace(" ","");
-                this.gameObject.GetComponent<Animator>().SetBool("IsWalking",false);
-                SceneManager.LoadScene("KSH_FightScene");
-            }
-                
+            return monsters;
         }
+    }
+
+    public bool IsFirstLoad
+    {
+        get
+        {
+            return isFirstLoad;
+        }
+        set
+        {
+            isFirstLoad = value;
+        }
+    }
+
+    public void SendToFight(string characterType, string monsterName, string currentHp)
+    {
+        characterName = characterType;
+        monsters = monsterName;
+        playerHp = currentHp;
     }
 
     void OnSceneLoaded(Scene Scene, LoadSceneMode mode){

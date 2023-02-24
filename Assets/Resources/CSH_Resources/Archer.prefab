@@ -572,6 +572,8 @@ GameObject:
   - component: {fileID: 7688570099718737662}
   - component: {fileID: 4978790524249345189}
   - component: {fileID: 7518473362141252898}
+  - component: {fileID: 3500618653810257020}
+  - component: {fileID: 3903292553347051955}
   m_Layer: 0
   m_Name: Archer
   m_TagString: Player
@@ -661,6 +663,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pv: {fileID: 4978790524249345189}
+  travelSpeed: 4
 --- !u!82 &7688570099718737662
 AudioSource:
   m_ObjectHideFlags: 0
@@ -777,6 +780,7 @@ MonoBehaviour:
   observableSearch: 2
   ObservedComponents:
   - {fileID: 7518473362141252898}
+  - {fileID: 3500618653810257020}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
@@ -796,6 +800,51 @@ MonoBehaviour:
   m_SynchronizeRotation: 1
   m_SynchronizeScale: 0
   m_UseLocal: 1
+--- !u!114 &3500618653810257020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3313946759752246840}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b8c4a61274f60b4ea5fb4299cfdbf14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowLayerWeightsInspector: 1
+  ShowParameterInspector: 1
+  m_SynchronizeParameters:
+  - Type: 4
+    SynchronizeType: 2
+    Name: IsWalking
+  m_SynchronizeLayers:
+  - SynchronizeType: 0
+    LayerIndex: 0
+--- !u!114 &3903292553347051955
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3313946759752246840}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d06466c03d263624786afa88b52928b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  statsWindowOn: 1
+  statsOn: 1
+  healthStatsVisible: 0
+  trafficStatsOn: 0
+  buttonsOn: 0
+  statsRect:
+    serializedVersion: 2
+    x: 0
+    y: 100
+    width: 200
+    height: 50
+  WindowId: 100
 --- !u!1 &3313946759759989019
 GameObject:
   m_ObjectHideFlags: 0

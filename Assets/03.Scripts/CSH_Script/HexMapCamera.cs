@@ -1,10 +1,28 @@
+using System.Collections;
 using UnityEngine;
 
 public class HexMapCamera : MonoBehaviour
 {
     Transform swivel, stick;
     float zoom = 1f;
-    float rotationAngle;
+
+    public bool IsCameraOnPlayer
+    {
+        get
+        {
+            return isCameraOnPlayer;
+        }
+    }
+    bool isCameraOnPlayer = false;
+
+    public bool IsCameraAutoMoving
+    {
+        get
+        {
+            return isCameraAutoMoving;
+        }
+    }
+    bool isCameraAutoMoving = false;
 
     public HexGrid grid;
     public float stickMinZoom, stickMaxZoom;
@@ -24,11 +42,6 @@ public class HexMapCamera : MonoBehaviour
 
         if (zoomDelta != 0f)
             AdjustZoom(zoomDelta);
-
-        float rotationDelta = Input.GetAxis("Rotation");
-
-        if (rotationDelta != 0f)
-            AdjustRotation(rotationDelta);
 
         float xDelta = Input.GetAxis("Horizontal");
         float zDelta = Input.GetAxis("Vertical");
@@ -59,6 +72,21 @@ public class HexMapCamera : MonoBehaviour
         transform.localPosition = ClampPosition(position);
     }
 
+    public void PointToPlayer(Vector3 playerLocation)
+    {
+        if(!isCameraOnPlayer)
+            StartCoroutine(CameraAutoMove(playerLocation));
+    }
+
+    IEnumerator CameraAutoMove(Vector3 playerLocation)
+    {
+        isCameraAutoMoving = true;
+        transform.position = Vector3.Lerp(transform.position, playerLocation, Time.deltaTime * 2f);
+        yield return new WaitForSeconds(1.2f);
+        isCameraOnPlayer = true;
+        isCameraAutoMoving = false;
+    }
+
     Vector3 ClampPosition(Vector3 position)
     {
         float xMax =
@@ -72,17 +100,5 @@ public class HexMapCamera : MonoBehaviour
         position.z = Mathf.Clamp(position.z, 0f, zMax);
 
         return position;
-    }
-
-    void AdjustRotation(float delta)
-    {
-        rotationAngle += delta * rotationSpeed * Time.deltaTime;
-
-        if (rotationAngle < 0f)
-            rotationAngle += 360f;
-        else if (rotationAngle >= 360f)
-            rotationAngle -= 360f;
-        
-        transform.localRotation = Quaternion.Euler(0f, rotationAngle, 0f);
     }
 }

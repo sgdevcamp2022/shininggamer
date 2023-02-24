@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
+using System.Linq;
+
 public class CreateMonsterManager : MonoBehaviour
 {
     [SerializeField]
@@ -13,11 +15,20 @@ public class CreateMonsterManager : MonoBehaviour
     [SerializeField]
     Sprite[] imgs;
     
-    bool isFirst=false;
+    bool isFirst = false;
     
     Dictionary<int,MonsterType> AllMonsterInfo;
+    UserInfo userInfo;
+
+    void Start()
+    {
+        userInfo = GameObject.Find("Player").GetComponent<UserInfo>();
+        Debug.Log(userInfo.CharacterType);
+    }
+
     private void OnEnable() {
-        Destroy(GameObject.FindWithTag("Player").GetComponent<HexUnit>());
+        
+        //Destroy(GameObject.FindWithTag("Player").GetComponent<HexUnit>());
         AllMonsterInfo=FirebaseLoadManager.AllMonsterInfo;
     }
 
@@ -26,14 +37,16 @@ public class CreateMonsterManager : MonoBehaviour
             AllMonsterInfo=FirebaseLoadManager.AllMonsterInfo;
         }
         if(AllMonsterInfo!=null&&!isFirst){
-            UserInfo playertmp = GameObject.FindWithTag("Player").GetComponent<UserInfo>();
+            UserInfo playertmp =GameObject.FindWithTag("Player").GetComponent<UserInfo>();
             foreach(KeyValuePair<int,MonsterType> i in FirebaseLoadManager.AllMonsterInfo){
-                if(i.Value.Name==playertmp.FightMonsterName){
+                Debug.Log(i.Value.Name+" "+playertmp.Monsters);
+                if(i.Value.Name==playertmp.Monsters){
                         CreateMonster(i.Key,i.Value);
                 }
             }
             isFirst=true;
         }
+        
     }
 
     
@@ -47,7 +60,7 @@ public class CreateMonsterManager : MonoBehaviour
        EnemyField.transform.Find("EnemyName").GetComponent<Text>().text=monster.Name;
        EnemyField.transform.Find("LevelText").GetComponent<Text>().text=monster.Level;
        EnemyField.transform.Find("DamageText").GetComponent<Text>().text=monster.Damage;
-       float health=Convert.ToSingle(monster.Health);
+       float health=Convert.ToSingle(monster.HP);
        EnemyField.transform.Find("DamageSlider").GetComponent<Slider>().value=health/health;
        EnemyField.transform.Find("EnemyPanel").transform.Find("Image").GetComponent<Image>().sprite=imgs[i];
    

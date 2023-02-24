@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-
+using System;
 public class AudioManager : MonoBehaviour
 {
     [SerializeField]
@@ -15,8 +15,13 @@ public class AudioManager : MonoBehaviour
 
     private void LoadedsceneEvent(Scene scene, LoadSceneMode mode)
     {
-        if(scene.name.Contains("Tile")||scene.name.Contains("Fight"))
-            Destroy(gameObject);
+        try{
+            if(gameObject!=null)
+                if(scene.name.Contains("Tile"))
+                    Destroy(gameObject);
+        }catch(Exception e){
+
+        }
     }
 
 }

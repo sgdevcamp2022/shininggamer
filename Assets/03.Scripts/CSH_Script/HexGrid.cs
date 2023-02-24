@@ -5,7 +5,9 @@ using System.IO;
 using System.Collections.Generic;
 using UnityEngine.EventSystems;
 using System;
-using UnityEngine.UIElements;
+using System.Collections;
+using Hashtable = ExitGames.Client.Photon.Hashtable;
+using Photon.Realtime;
 
 public class HexGrid : MonoBehaviourPunCallbacks
 {
@@ -16,7 +18,7 @@ public class HexGrid : MonoBehaviourPunCallbacks
     public HexGridChunk chunkPrefab;
     public int seed;
     public List<HexUnit> unitPrefab;
-    public HexCell firstPlayerLocation, secondPlayerLocation, thirdPlayerLocation;
+    public HexCell[] playerLocations = new HexCell[3];
     public int[] playerCells = new int[3];
     public HexCell[] cells;
 
@@ -24,21 +26,54 @@ public class HexGrid : MonoBehaviourPunCallbacks
     HexGridChunk[] chunks;
     HexCellPriorityQueue searchFrontier;
     HexCell currentPathFrom, currentPathTo;
-    List<HexUnit> units = new List<HexUnit>();
-    HexUnit selectedUnit;
-    RandomController randomController;
-    Concentration concentration;
 
-    int cellCountX, cellCountZ;
+    public List<HexUnit> Units
+    {
+        get
+        {
+            return units;
+        }
+    }
+    List<HexUnit> units = new List<HexUnit>();
+
+    PhotonView pv;
+    GameManager gameManager;
+
+    public HexUnit SelectedUnit
+    {
+        get
+        {
+            return selectedUnit;
+        }
+    }
+    HexUnit selectedUnit;
+    HexMapCamera hexMapCamera;
+
+    public bool IsUseConcentration
+    {
+        get
+        {
+            return isUseConcentration;
+        }
+        set
+        {
+            isUseConcentration = value;
+        }
+    }
+    bool isUseConcentration;
+
     bool currentPathExists;
+    int cellCountX, cellCountZ;
     int searchFrontierPhase;
+    string playerTag;
+    Vector3 currentPlayerLocation;
 
     public bool HasPath
     {
         get
         {
             return currentPathExists;
-        }   
+        }
     }
 
     public int MoveCount
@@ -56,16 +91,21 @@ public class HexGrid : MonoBehaviourPunCallbacks
 
     void Awake()
     {
+        pv = GetComponent<PhotonView>();
         HexMetrics.noiseSource = noiseSource;
         HexUnit.unitPrefab = unitPrefab;
-        
+
         cellCountX = chunkCountX * HexMetrics.chunkSizeX;
         cellCountZ = chunkCountZ * HexMetrics.chunkSizeZ;
-        randomController = FindObjectOfType<RandomController>();
-        concentration = FindObjectOfType<Concentration>();
+        hexMapCamera = GameObject.Find("Hex Map Camera").GetComponent<HexMapCamera>();
 
         CreateChunks();
         CreateCells();
+    }
+
+    private void Start()
+    {
+        gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
     }
 
     public override void OnEnable()
@@ -81,19 +121,20 @@ public class HexGrid : MonoBehaviourPunCallbacks
     {
         if (!EventSystem.current.IsPointerOverGameObject())
         {
-            if(!selectedUnit)
-                DoSelection();
-            
-            if (selectedUnit)
+            if (!selectedUnit)
+                StartCoroutine("DoSelection");
+
+            if (selectedUnit && selectedUnit.IsMyTurn == true)
             {
-                if (Input.GetMouseButtonDown(0))
+                hexMapCamera.PointToPlayer(currentPlayerLocation);
+                if (Input.GetMouseButtonDown(0) && moveCount > 0)
                 {
                     DoMove();
                 }
-                else if(Input.GetMouseButtonDown(1))
+                else if (Input.GetMouseButtonDown(1))
                 {
                     moveCount++;
-                    ConcentrationChange(concentration, -1);
+                    isUseConcentration = true;
                 }
                 else
                 {
@@ -144,11 +185,11 @@ public class HexGrid : MonoBehaviourPunCallbacks
         cell.uiRect = label.rectTransform;
         cell.Elevation = 0;
 
-        if (cell.transform.localPosition == firstPlayerLocation.transform.localPosition)
+        if (cell.transform.localPosition == playerLocations[0].transform.localPosition)
             playerCells[0] = i;
-        else if (cell.transform.localPosition == secondPlayerLocation.transform.localPosition)
+        else if (cell.transform.localPosition == playerLocations[1].transform.localPosition)
             playerCells[1] = i;
-        else if (cell.transform.localPosition == thirdPlayerLocation.transform.localPosition)
+        else if (cell.transform.localPosition == playerLocations[2].transform.localPosition)
             playerCells[2] = i;
 
         AddCellToChunk(x, z, cell);
@@ -199,13 +240,25 @@ public class HexGrid : MonoBehaviourPunCallbacks
         unit.UnitType = unitType;
     }
 
-    public void AddUnit(HexUnit unit, HexCell location, int unitType, string characterName)
+    [PunRPC]
+    public void AddUnit(int viewID, string name, int turn, int unitType, string characterName, bool isMyTurn)
     {
-        units.Add(unit);
+        HexUnit unit = PhotonView.Find(viewID).gameObject.GetComponent<HexUnit>();
+        units.Add(PhotonView.Find(viewID).gameObject.GetComponent<HexUnit>());
+        unit.gameObject.name = name;
         unit.transform.SetParent(transform, false);
-        unit.Location = location;
+        unit.Location = cells[playerCells[turn - 1]];
         unit.UnitType = unitType;
         unit.CharacterName = characterName;
+        //AddLocalInfo(unit, turn, isMyTurn);
+    }
+
+    public void AddLocalInfo(HexUnit unit, int turn, bool isMyTurn)
+    {
+        unit.Turn = turn;
+        unit.IsMyTurn = isMyTurn;
+        playerTag = unit.name;
+        print("playerTag: " + playerTag + ", unit.tag: " + unit.tag);
     }
 
     public void RemoveUnit(HexUnit unit)
@@ -231,14 +284,14 @@ public class HexGrid : MonoBehaviourPunCallbacks
     public HexCell GetCell(HexCoordinates coordinates)
     {
         int z = coordinates.Z;
-        
+
         if (z < 0 || z >= cellCountZ)
             return null;
         int x = coordinates.X + z / 2;
-        
+
         if (x < 0 || x >= cellCountX)
             return null;
-        
+
         return cells[x + z * cellCountX];
     }
 
@@ -247,13 +300,13 @@ public class HexGrid : MonoBehaviourPunCallbacks
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit))
             return GetCell(hit.point);
-        
         return null;
     }
 
     public void FindPath(HexCell fromCell, HexCell toCell, int speed)
     {
         ClearPath();
+
         currentPathFrom = fromCell;
         currentPathTo = toCell;
         currentPathExists = Search(fromCell, toCell, speed);
@@ -274,6 +327,52 @@ public class HexGrid : MonoBehaviourPunCallbacks
         path.Reverse();
         return path;
     }
+    public void Save(BinaryWriter writer)
+    {
+        for (int i = 0; i < cells.Length; i++)
+            cells[i].Save(writer);
+
+        writer.Write(units.Count);
+
+        for (int i = 0; i < units.Count; i++)
+            units[i].Save(writer);
+    }
+
+    public void Load(BinaryReader reader)
+    {
+        //ClearPath();
+        //ClearUnits();
+
+        for (int i = 0; i < cells.Length; i++)
+            cells[i].Load(reader);
+
+        for (int i = 0; i < chunks.Length; i++)
+            chunks[i].Refresh();
+
+        int unitCount = reader.ReadInt32();
+
+        for (int i = 0; i < unitCount; i++)
+            HexUnit.Load(reader, this);
+
+        //GameObject tmp= GameObject.FindWithTag("Player").gameObject;
+        //DontDestroyOnLoad(tmp);
+    }
+
+    [PunRPC]
+    void RPCTurnEnd()
+    {
+        gameManager.gameTurn++;
+        UpdateIsMyTurn();
+        gameManager.TryMove(selectedUnit.IsMyTurn);
+    }
+
+    void UpdateIsMyTurn()
+    {
+        selectedUnit.IsMyTurn =
+(gameManager.gameTurn % PhotonNetwork.CurrentRoom.PlayerCount) == (selectedUnit.Turn % PhotonNetwork.CurrentRoom.PlayerCount);
+        print("is my turn: " + selectedUnit.IsMyTurn);
+        //gameManager.GetComponent<PhotonView>().RPC("TryMove", RpcTarget.All, selectedUnit.IsMyTurn);
+    }
 
     bool Search(HexCell fromCell, HexCell toCell, int speed)
     {
@@ -290,40 +389,40 @@ public class HexGrid : MonoBehaviourPunCallbacks
 
         while (searchFrontier.Count > 0)
         {
-            HexCell current = searchFrontier.Dequeue();
-            current.SearchPhase += 1;
+            HexCell currentSearchFrontier = searchFrontier.Dequeue();
+            currentSearchFrontier.SearchPhase += 1;
 
-            if (current == toCell)
+            if (currentSearchFrontier == toCell)
             {
-                if(current.Unit != null && !(current.Unit.CompareTag("Player")))
+                if (currentSearchFrontier.Unit != null && !(currentSearchFrontier.Unit.tag.Substring(0, 6) == "Player"))
                 {
-                    if (current.Unit.tag.Substring(0, 7) == "Monster")
+                    if (currentSearchFrontier.Unit.tag.Substring(0, 7) == "Monster")
                         return true;
                 }
                 return true;
             }
 
-            int currentTurn = (current.Distance - 1) / speed;
+            int currentTurn = (currentSearchFrontier.Distance - 1) / speed;
 
             for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++)
             {
-                HexCell neighbor = current.GetNeighbor(d);
+                HexCell neighbor = currentSearchFrontier.GetNeighbor(d);
 
                 if (neighbor == null || neighbor.SearchPhase > searchFrontierPhase)
                     continue;
 
                 if (neighbor.Unit)
                 {
-                    if (neighbor.Unit.tag.Substring(0, 7) != "Monster")
+                    if (neighbor.Unit.tag.Length >= 7 &&neighbor.Unit.tag.Substring(0, 7) != "Monster")
                         continue;
                 }
-                    
-                if (current.GetEdgeType(neighbor) == HexEdgeType.Cliff)
+
+                if (currentSearchFrontier.GetEdgeType(neighbor) == HexEdgeType.Cliff)
                     continue;
-                
+
                 int moveCost;
                 moveCost = 1;
-                int distance = current.Distance + moveCost;
+                int distance = currentSearchFrontier.Distance + moveCost;
                 int turn = (distance - 1) / speed;
 
                 if (turn > currentTurn)
@@ -333,7 +432,7 @@ public class HexGrid : MonoBehaviourPunCallbacks
                 {
                     neighbor.SearchPhase = searchFrontierPhase;
                     neighbor.Distance = distance;
-                    neighbor.PathFrom = current;
+                    neighbor.PathFrom = currentSearchFrontier;
                     neighbor.SearchHeuristic =
                         neighbor.coordinates.DistanceTo(toCell.coordinates);
                     searchFrontier.Enqueue(neighbor);
@@ -342,54 +441,12 @@ public class HexGrid : MonoBehaviourPunCallbacks
                 {
                     int oldPriority = neighbor.SearchPriority;
                     neighbor.Distance = distance;
-                    neighbor.PathFrom = current;
+                    neighbor.PathFrom = currentSearchFrontier;
                     searchFrontier.Change(neighbor, oldPriority);
                 }
             }
         }
         return false;
-    }
-
-    public void Save(BinaryWriter writer)
-    {
-        for (int i = 0; i < cells.Length; i++)
-            cells[i].Save(writer);
-        
-        writer.Write(units.Count);
-        
-        for (int i = 0; i < units.Count; i++)
-            units[i].Save(writer);
-    }
-
-    public void Load(BinaryReader reader)
-    {
-        //ClearPath();
-        //ClearUnits();
-
-        for (int i = 0; i < cells.Length; i++)
-            cells[i].Load(reader);
-
-        for (int i = 0; i < chunks.Length; i++)
-            chunks[i].Refresh();
-        
-        int unitCount = reader.ReadInt32();
-        
-        for (int i = 0; i < unitCount; i++)
-            HexUnit.Load(reader, this);
-
-        //GameObject tmp= GameObject.FindWithTag("Player").gameObject;
-        //DontDestroyOnLoad(tmp);
-    }
-
-    public void ConcentrationChange(Concentration concentration, int concentChange)
-    {
-        if (concentration.totalConcentration <= 5 && concentration.totalConcentration >= 0)
-        {
-            concentration.totalConcentration += concentChange;
-            concentration.ConcentImageChange();
-        }
-        else
-            return;
     }
 
     void ShowPath(int speed)
@@ -462,7 +519,7 @@ public class HexGrid : MonoBehaviourPunCallbacks
                 return true;
             }
         }
-        catch(IndexOutOfRangeException e)
+        catch (IndexOutOfRangeException e)
         {
             Debug.Log(e);
             return false;
@@ -471,23 +528,28 @@ public class HexGrid : MonoBehaviourPunCallbacks
         return false;
     }
 
-    void DoSelection()
+    IEnumerator DoSelection()
     {
+        yield return new WaitForSeconds(3f);
         ClearPath();
         UpdateCurrentCell();
-        
-        if(currentCell)
+
+        if (currentCell)
         {
-            for(int i = 0; i < units.Count; i++) 
+            for (int i = 0; i < units.Count; i++)
             {
-                if (units[i].CompareTag("Player"))
+                print("Compare tag: " + playerTag);
+                if (units[i].CompareTag(playerTag) &&  (units[i] != null))
                 {
                     selectedUnit = units[i];
+                    currentPlayerLocation.x = selectedUnit.transform.localPosition.x;
+                    currentPlayerLocation.y = 50f;
+                    currentPlayerLocation.z = selectedUnit.transform.localPosition.z;
                 }
             }
+            print("selectedUnit: " + selectedUnit.name);
         }
-
-        return;
+        yield break;
     }
 
     void DoPathfinding()
@@ -509,6 +571,8 @@ public class HexGrid : MonoBehaviourPunCallbacks
     {
         if (HasPath)
         {
+            print("move count : " + moveCount);
+            moveCount -= GetPath().Count - 1;
             selectedUnit.Travel(GetPath());
             ClearPath();
         }

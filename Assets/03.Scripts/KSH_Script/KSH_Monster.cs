@@ -6,6 +6,7 @@ public class KSH_Monster : MonoBehaviour
 {
     public int power, dex, luk, mp, hp;
     public int damage;
+    public bool isTurn;
     private void Awake()
     {
         hp = 30;
@@ -23,7 +24,8 @@ public class KSH_Monster : MonoBehaviour
 
     void OnDamage(int damage)
     {
-        hp =- damage;
+        hp = hp - damage;
+        Debug.Log(damage);
         if(hp <= 0)
         {
             hp = 0;

@@ -7,7 +7,18 @@ public class Concentration : MonoBehaviour
     [SerializeField] Sprite filledConcentration;
     [SerializeField] Sprite unFilledConcentration;
 
-    public int totalConcentration;
+    public int TotalConcentration
+    {
+        get
+        {
+            return totalConcentration;
+        }
+        set
+        {
+            totalConcentration = value;
+        }
+    }
+    int totalConcentration;
 
     void Start()
     {
@@ -19,6 +30,17 @@ public class Concentration : MonoBehaviour
             concentImages[i] = transform.GetChild(i).GetComponent<Image>();
             concentImages[i].sprite = filledConcentration;
         }
+    }
+
+    public void ConcentrationChange(int concentChange)
+    {
+        if (totalConcentration <= 5 && totalConcentration >= 0)
+        {
+            totalConcentration += concentChange;
+            ConcentImageChange();
+        }
+        else
+            return;
     }
 
     public void ConcentImageChange()

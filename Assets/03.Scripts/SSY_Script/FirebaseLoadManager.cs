@@ -35,12 +35,13 @@ public class FirebaseLoadManager : MonoBehaviour
                 int i=0;
                 foreach(DataSnapshot data in snapshot.Children){
                     IDictionary types =(IDictionary)data.Value;
-                    CharacterType tmp = new CharacterType(types["CharacterName"],types["Evasion"],types["Luck"],types["MagicDefense"],types["PhysicalDefense"],types["Power"],types["Recognition"],types["Speed"],types["Talent"],types["Vitality"],types["Intellect"]);          
+                    CharacterType tmp = new CharacterType(types["CharacterName"],types["Level"],types["Exp"],types["HP"],types["Evasion"],types["Luck"],types["MagicDefense"],types["PhysicalDefense"],types["Power"],types["Recognition"],types["Speed"],types["Talent"],types["Vitality"],types["Intellect"]);          
                     CharacterOp.Add(i,tmp);
                     i++;
                 }
             }
         });
+
     }
     public Dictionary<int,MonsterType> LoadAllMonsterInfo(){
         databaseReference.Child("MonsterType").GetValueAsync().ContinueWith(task =>

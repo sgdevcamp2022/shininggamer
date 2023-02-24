@@ -32,6 +32,9 @@ public class CameraMoveByMouse : MonoBehaviour
 
     private void LateUpdate()
     {
+        if (this.gameObject.GetComponent<HexMapCamera>().IsCameraAutoMoving)
+            return;
+
         if (Input.GetKeyDown(KeyCode.R))
         {
             print(resetCamera);

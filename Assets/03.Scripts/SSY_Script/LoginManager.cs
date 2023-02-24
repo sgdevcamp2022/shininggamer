@@ -37,7 +37,6 @@ public class LoginManager : MonoBehaviour
             userid+=FirebaseAuthManager.Instance.UserId;
             menu.Id=id.text;
             menu.isLogin=true;
-            Debug.Log(userid);
             LoginUI.SetActive(false);
             MenuUI.SetActive(true);
         }

@@ -10,8 +10,10 @@
 /[Ll]ogs/
 /[Mm]emoryCaptures/
 [Uu]ser[Ss]ettings/
+/[Uu]ser[Ss]ettings/
 Assets/Firebase/
 Assets/Plugins/
+.json
 
 # Asset meta data should only be ignored when the corresponding asset is also ignored
 !/[Aa]ssets/**/*.meta

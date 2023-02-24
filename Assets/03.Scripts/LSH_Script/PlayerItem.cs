@@ -39,7 +39,6 @@ public class PlayerItem : MonoBehaviourPunCallbacks
 
     public override void OnDisable()
     {
-        print("disable");
         // StartSelectionButton
         this.transform.GetChild(0).gameObject.SetActive(true);
         // Selection
@@ -51,7 +50,6 @@ public class PlayerItem : MonoBehaviourPunCallbacks
 
     public void SetPlayerInfo(Player _player)
     {
-        print("setplayerinfo called.");
         playerName.text = _player.NickName;
         player = _player;
         characterName.text = characterTypes[0].Name;
@@ -99,7 +97,6 @@ public class PlayerItem : MonoBehaviourPunCallbacks
     // remote player의 property가 변경될 때에도 호출됨
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
     {
-        print("OnPlayerPropertiesUpdate called.");
         if (player == targetPlayer)
         {
             UpdatePlayerItem(targetPlayer);
@@ -111,7 +108,6 @@ public class PlayerItem : MonoBehaviourPunCallbacks
     {
         if (player.CustomProperties.ContainsKey("avatarIndex"))
         {
-            print("UpdatePlayerItem called. Destroy " + character.transform.GetChild(0).gameObject);
             Destroy(character.transform.GetChild(0).gameObject);
 
             GameObject newAvatar = characters[(int)player.CustomProperties["avatarIndex"]].gameObject;
@@ -145,14 +141,12 @@ public class PlayerItem : MonoBehaviourPunCallbacks
         bool isReady;
         if (!(bool)player.CustomProperties["isReady"])
         {
-            print("플레이어 준비");
             playerProperties["isReady"] = true;
             isReady = true;
             player.SetCustomProperties(playerProperties);
         }
         else
         {
-            print("플레이어 준비 안 됨");
             playerProperties["isReady"] = false;
             isReady = false;
             player.SetCustomProperties(playerProperties);  

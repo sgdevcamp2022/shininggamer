@@ -3,7 +3,19 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Monster 1
+  - Monster 2
+  - Monster 4
+  - Player Home
+  - Dungeon
+  - Village
+  - Monster 3
+  - AudioManager
+  - AudioController
+  - Player 1
+  - Player 2
+  - Player 3
   layers:
   - Default
   - TransparentFX
@@ -11,7 +23,7 @@ TagManager:
   - 
   - Water
   - UI
-  - 
+  - Monster
   - 
   - 
   - 

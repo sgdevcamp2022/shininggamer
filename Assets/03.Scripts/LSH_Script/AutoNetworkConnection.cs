@@ -5,8 +5,7 @@ using Photon.Pun;
 
 public class AutoNetworkConnection : MonoBehaviourPunCallbacks
 {
-    // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         PhotonNetwork.NickName = "AUTO"; // 닉네임 설정
         PhotonNetwork.AutomaticallySyncScene = true; // 플레이어 간 씬 동일하게 하는 설정

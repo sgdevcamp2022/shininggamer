@@ -67,6 +67,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Monster4
       objectReference: {fileID: 0}
+    - target: {fileID: 7487410016656624447, guid: 9e6401f8e2320e54797a680db42d218f,
+        type: 3}
+      propertyPath: m_TagString
+      value: Monster 4
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9e6401f8e2320e54797a680db42d218f, type: 3}
 --- !u!1 &7949464882559929904 stripped
@@ -88,3 +93,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MonsterName: 
+  MonsterImg: {fileID: 0}

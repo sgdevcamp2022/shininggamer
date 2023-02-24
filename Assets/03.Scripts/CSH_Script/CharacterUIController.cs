@@ -1,25 +1,50 @@
-/*using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class CharacterUIController : MonoBehaviour
 {
-    UserInfo playertmp;
+    public Sprite[] characterPanels = new Sprite[3];
+    public Text CurrentHp
+    {
+        get
+        {
+            return currentHp;
+        }
+        set
+        {
+            currentHp = value;
+        }
+    }
+
+    public Concentration Concentration
+    {
+        get
+        {
+            return concentration;
+        }
+    }
+
+    UserInfo player;
     Slider hpBar, expBar;
     Image characterPanel;
     Text currentHp, id, level, physicalDefense, magicDefense, evasion,
-        power, vitality, intelligence, recognition, talent, speed, luck;
+        power, vitality, intelligence, recognition, talent, speed, luck,
+        hp, exp;
     GameObject textPanel, abilityPanel;
+    Concentration concentration;
 
-    void Start()
+    void Awake()
     {
-        playertmp = GameObject.Find("Player").GetComponent<UserInfo>();
+        player = GameObject.Find("Player").GetComponent<UserInfo>();
         textPanel = GameObject.Find("TextPanel");
         abilityPanel = GameObject.Find("abilities");
+        concentration = GameObject.Find("Concentration Grid").GetComponent<Concentration>();
+        id = GameObject.Find("ID").GetComponent<Text>();
         physicalDefense = textPanel.transform.Find("PhysicalDefense").GetComponent<Text>();
         magicDefense = textPanel.transform.Find("MagicDefense").GetComponent<Text>();
         evasion = textPanel.transform.Find("Evasion").GetComponent<Text>();
+        level = textPanel.transform.Find("Level").GetComponent<Text>();
         power = abilityPanel.transform.Find("Power").GetComponent<Text>();
         vitality = abilityPanel.transform.Find("Vitality").GetComponent<Text>();
         intelligence = abilityPanel.transform.Find("Intelligence").GetComponent<Text>();
@@ -27,35 +52,36 @@ public class CharacterUIController : MonoBehaviour
         talent = abilityPanel.transform.Find("Talent").GetComponent<Text>();
         speed = abilityPanel.transform.Find("Speed").GetComponent<Text>();
         luck = abilityPanel.transform.Find("Luck").GetComponent<Text>();
-        //hpBar = transform.Find("HpSlider").GetComponent<Slider>();
-        //expBar = transform.Find("ExpSlider").GetComponent<Slider>();
-        //characterPanel = transform.Find("CharacterPanel").GetComponent<Image>();
-        //currentHp = transform.Find("Health").GetComponent<Text>();
-        //id = transform.Find("ID").GetComponent<Text>();
-        //level = transform.Find("Level").GetComponent<Text>();
-
-        Debug.Log(playertmp.CType.PhysicalDefense);
-
-        InitializeStat();
+        hpBar = GameObject.Find("HpSlider").GetComponent<Slider>();
+        expBar = GameObject.Find("ExpSlider").GetComponent<Slider>();
+        hp = hpBar.transform.Find("Hp Text").GetComponent<Text>();
+        exp = expBar.transform.Find("Exp Text").GetComponent<Text>();
+        currentHp = GameObject.Find("Current Hp").GetComponent<Text>();
+        characterPanel = GameObject.Find("CharacterPanel").GetComponent<Image>();
     }
 
-    void InitializeStat()
+    public void InitializeStat(int charImgIndex)
     {
-        physicalDefense.text = playertmp.CType.PhysicalDefense;
-        magicDefense.text = playertmp.CType.MagicDefense;
-        evasion.text = playertmp.CType.Evasion;
-        power.text = playertmp.CType.Power;
-        vitality.text = playertmp.CType.Vitality;
-        intelligence.text = playertmp.CType.Intellect;
-        recognition.text = playertmp.CType.Recognition;
-        talent.text = playertmp.CType.Talent;
-        speed.text = playertmp.CType.Speed;
-        luck.text = playertmp.CType.Luck;
-    }
+        id.text = player.ID;
+        physicalDefense.text = player.CType.PhysicalDefense;
+        magicDefense.text = player.CType.MagicDefense;
+        evasion.text = player.CType.Evasion;
+        level.text = player.CType.Level;
+        power.text = player.CType.Power;
+        vitality.text = player.CType.Vitality;
+        intelligence.text = player.CType.Intellect;
+        recognition.text = player.CType.Recognition;
+        talent.text = player.CType.Talent;
+        speed.text = player.CType.Speed;
+        luck.text = player.CType.Luck;
+        characterPanel.sprite = characterPanels[charImgIndex];
 
-
-    void Update()
-    {
-        
+        currentHp.text = player.CType.HP;
+        hpBar.maxValue = int.Parse(player.CType.HP);
+        hpBar.value = int.Parse(player.CType.HP);
+        hp.text = currentHp.text + " / " + player.CType.HP;
+        expBar.maxValue = int.Parse(player.CType.Exp);
+        expBar.value = 0;
+        exp.text = "0 / " + player.CType.Exp;
     }
-}*/
+}

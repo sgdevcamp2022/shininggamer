@@ -1,12 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using System;
 public class KSH_Player : MonoBehaviour
 {
     Animator playerAnim;
     Transform playerTr;
-
+    public bool isTurn;
     public enum PlayerJop { warrior, archor, magician };
     public enum PlayerAnimStat { attack, die, hit };
 
@@ -15,13 +15,26 @@ public class KSH_Player : MonoBehaviour
 
     PlayerJop playerJop;
     Animator playerAnimator;
+    public int damage;
+
+    GameObject targetMonster;
+
+    UserInfo player;
 
     [SerializeField]
-    GameObject targetMonster;
+    AudioSource knifeBgm;
     private void Awake()
     {
         playerAnimator = GetComponent<Animator>();
-        targetMonster = GameObject.Find("KSH_Slime");
+        player=GameObject.Find("Player").GetComponent<UserInfo>();
+        damage = 10;
+    }
+
+    void Update(){
+        if(targetMonster==null){
+            targetMonster = GameObject.Find("Monster1(Clone)").gameObject;
+            Debug.Log(targetMonster);
+        }
     }
     
     void PlayerBaseSetting()
@@ -41,6 +54,8 @@ public class KSH_Player : MonoBehaviour
         StartCoroutine(IEPlayerAttack());
     }
 
+
+
     IEnumerator IEPlayerAttack()
     {
         float moveMaxTime = 1f;
@@ -57,13 +72,12 @@ public class KSH_Player : MonoBehaviour
         }
         yield return new WaitForSeconds(0.33f);
         playerAnimator.SetTrigger("Attack");
-        StartCoroutine(HitDamage(damage));
-
-        
+        StartCoroutine(HitDamage(player.Damage));
+        knifeBgm.Play();
         moveTime = 0;
         yield return new WaitForSeconds(1f);
         playerAnimator.SetTrigger("Jump");
-
+ 
         while (moveTime <= moveMaxTime)
         {
             transform.position = Vector3.MoveTowards(transform.position, originPos, Time.deltaTime * 7f);
@@ -74,7 +88,6 @@ public class KSH_Player : MonoBehaviour
         playerAttackEnd = true;
     }
 
-    public int damage = 10;
 
     public IEnumerator OnDamage(int damage, GameObject target)
     {
@@ -86,8 +99,9 @@ public class KSH_Player : MonoBehaviour
 
     public IEnumerator HitDamage(int damage)
     {
-        targetMonster.GetComponent<KSH_Monster>().damage = damage;
-        StartCoroutine(targetMonster.GetComponent<KSH_Monster>().HitMotion()); 
+        bool isKilling=false;
+        Debug.Log("1");
+        StartCoroutine(targetMonster.GetComponent<MonsterInfo>().HitMotion(player.Damage)); 
         yield return null;
     }
 

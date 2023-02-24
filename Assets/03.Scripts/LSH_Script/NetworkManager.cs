@@ -91,7 +91,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
             {
                 if (!NetworkManager.roomList.Contains(roomList[i]))
                 {
-                    print(roomList[i].CustomProperties["start"]);
                     NetworkManager.roomList.Add(roomList[i]);
                 }
             }
@@ -142,14 +141,14 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         }
 
         RoomOptions options = new RoomOptions();
-        options.MaxPlayers = 2;
+        options.MaxPlayers = 3;
         options.EmptyRoomTtl = 0;
         options.BroadcastPropsChangeToAll = true;
         options.CustomRoomProperties = new ExitGames.Client.Photon.Hashtable { { "start", false } };
         options.CustomRoomPropertiesForLobby = new string[] { "start" };
-        options.PlayerTtl= 0;
+        options.PlayerTtl = 0;
         PhotonNetwork.CreateRoom(PhotonNetwork.LocalPlayer.NickName, options, TypedLobby.Default);
-        
+
     }
 
     public override void OnCreatedRoom()
@@ -160,7 +159,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
         players[0].text = GetMasterClientNickname();
 
-        print(PhotonNetwork.NickName + " created a new room.");
+        //print(PhotonNetwork.NickName + " created a new room.");
     }
 
     public override void OnCreateRoomFailed(short returnCode, string message)
@@ -170,20 +169,20 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public void JoinRoom(TMP_Text gameName)
     {
-        print(PhotonNetwork.NickName + " tried to join the room " + gameName.text + ".");
+        //print(PhotonNetwork.NickName + " tried to join the room " + gameName.text + ".");
         PhotonNetwork.JoinRoom(gameName.text);
     }
 
     public void JoinRoom(TMP_InputField gameName)
     {
-        print(PhotonNetwork.NickName + " tried to join the room " + gameName.text + ".");
+        //print(PhotonNetwork.NickName + " tried to join the room " + gameName.text + ".");
         PhotonNetwork.JoinRoom(gameName.text);
     }
 
 
     public override void OnJoinedRoom()
     {
-        print(PhotonNetwork.NickName + " joined the room.");
+        //print(PhotonNetwork.NickName + " joined the room.");
         roomPanel.SetActive(true);
 
         for (int i = 0; i < PhotonNetwork.CurrentRoom.PlayerCount; i++)
@@ -223,10 +222,9 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
-        print("Remote Player " + PhotonNetwork.NickName + " enterend the room.");
+        //print("Remote Player " + PhotonNetwork.NickName + " enterend the room.");
 
         int newPlayerIndex = PhotonNetwork.CurrentRoom.PlayerCount - 1;
-        print("newPlayerIndex: " + newPlayerIndex);
         players[newPlayerIndex].gameObject.SetActive(true);
         players[newPlayerIndex].text = PhotonNetwork.PlayerList[newPlayerIndex].NickName;
 
@@ -268,8 +266,8 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         characterSelectionPanel.SetActive(isActive);
         lobbyPanel.SetActive(!isActive);
         roomPanel.SetActive(!isActive);
-        
-        if(isActive)
+
+        if (isActive)
         {
             // 플레이어마다 누를 수 있는 StartSelectionButton 다르게 하기
             int localPlayerId = PhotonNetwork.CurrentRoom.Players.FirstOrDefault(x => x.Value.NickName == PhotonNetwork.NickName).Key;
@@ -306,7 +304,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         playerItems[playerId].transform.GetChild(0).gameObject.SetActive(!isActive);
 
         // 캐릭터 창에서 나갈 때 player의 기존의 properties 폐기
-            
+
     }
     #endregion
 
@@ -324,14 +322,9 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         CheckPlayersReadyAndStartGame();
     }
 
-    void LoadScene(string scene)
-    {
-        PhotonNetwork.LoadLevel(scene);
-    }
-
     public void CheckPlayersReadyAndStartGame()
     {
-        if (!characterSelectionPanel.activeSelf || (bool)PhotonNetwork.CurrentRoom.CustomProperties["start"])
+        if (!PhotonNetwork.InRoom || (bool)PhotonNetwork.CurrentRoom.CustomProperties["start"])
             return;
 
         try
@@ -342,18 +335,25 @@ public class NetworkManager : MonoBehaviourPunCallbacks
                 if ((bool)player.Value.CustomProperties["isReady"])
                     playersReady++;
             }
-            if (playersReady == PhotonNetwork.CurrentRoom.MaxPlayers)
+            if (playersReady == PhotonNetwork.CurrentRoom.PlayerCount)
             {
                 PhotonNetwork.CurrentRoom.CustomProperties["start"] = true;
+
                 Dictionary<int, CharacterType> characterTypes = GameObject.FindObjectOfType<FirebaseLoadManager>().CharacterOp;
-                GameObject.Find("Player").GetComponent<UserInfo>().CType = characterTypes[(int)PhotonNetwork.LocalPlayer.CustomProperties["avatarIndex"]];
-                LoadScene("TilemapScene");
+                // 캐릭터를 변경하지 않았을 시 CustomProperties에 avatarIndex가 존재하지 않음(PlayerItem.cs의 128번째 줄 실행 후 SetCustomProperties를 하지 않음)
+                if (PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey("avatarIndex"))
+                    GameObject.Find("Player").GetComponent<UserInfo>().CType = characterTypes[(int)PhotonNetwork.LocalPlayer.CustomProperties["avatarIndex"]];
+                else
+                    GameObject.Find("Player").GetComponent<UserInfo>().CType = characterTypes[0];
+                PhotonNetwork.LoadLevel("TilemapScene");
+                print("load scene");
             }
         }
         catch (NullReferenceException e)
         {
-            print("initialize player properties");
+            //print("need to initialize player custom properties.");
         }
+
     }
 
 

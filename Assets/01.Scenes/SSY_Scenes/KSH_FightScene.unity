@@ -4044,7 +4044,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 320, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 573.83, y: 245.9}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &295835698
@@ -6312,6 +6312,7 @@ MonoBehaviour:
   mp: 0
   hp: 0
   damage: 0
+  isTurn: 0
 --- !u!1001 &460316699
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7663,7 +7664,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 1600, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 573.83, y: 197.74}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &543988510
@@ -7733,7 +7734,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &544309140
 Transform:
   m_ObjectHideFlags: 0
@@ -7950,9 +7951,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4dd5ee52c4e3b41498fea8419cd81e03, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isTurn: 0
   playerAttackEnd: 0
-  targetMonster: {fileID: 0}
   damage: 0
+  targetMonster: {fileID: 0}
 --- !u!95 &555091578
 Animator:
   serializedVersion: 4
@@ -8627,7 +8629,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 960, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 573.83, y: 197.74}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &643158540
@@ -14451,9 +14453,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4dd5ee52c4e3b41498fea8419cd81e03, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isTurn: 0
   playerAttackEnd: 0
-  targetMonster: {fileID: 0}
   damage: 0
+  targetMonster: {fileID: 0}
 --- !u!1001 &1195888006
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -14919,7 +14922,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1234174285
 Transform:
   m_ObjectHideFlags: 0
@@ -17345,6 +17348,7 @@ MonoBehaviour:
   isPlayerTurn: 0
   settingComplet: 0
   toDoButton: []
+  turnObj: []
 --- !u!114 &1362503084
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19990,6 +19994,7 @@ MonoBehaviour:
   mp: 0
   hp: 0
   damage: 0
+  isTurn: 0
 --- !u!95 &1523805616
 Animator:
   serializedVersion: 4
@@ -21206,9 +21211,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4dd5ee52c4e3b41498fea8419cd81e03, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isTurn: 0
   playerAttackEnd: 0
-  targetMonster: {fileID: 0}
   damage: 0
+  targetMonster: {fileID: 0}
 --- !u!95 &1622580970
 Animator:
   serializedVersion: 4
@@ -23050,6 +23056,7 @@ MonoBehaviour:
   mp: 0
   hp: 0
   damage: 0
+  isTurn: 0
 --- !u!95 &1736653224
 Animator:
   serializedVersion: 4
@@ -29156,7 +29163,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!1 &1989916967925178
 GameObject:
   m_ObjectHideFlags: 0
@@ -34206,6 +34213,7 @@ MonoBehaviour:
   mp: 0
   hp: 0
   damage: 0
+  isTurn: 0
 --- !u!54 &95161444897375193
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -36994,9 +37002,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4dd5ee52c4e3b41498fea8419cd81e03, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isTurn: 0
   playerAttackEnd: 0
-  targetMonster: {fileID: 0}
   damage: 0
+  targetMonster: {fileID: 0}
 --- !u!1 &9105106662640746044
 GameObject:
   m_ObjectHideFlags: 0

@@ -572,6 +572,7 @@ GameObject:
   - component: {fileID: 7688570099718737662}
   - component: {fileID: 8624584803974220726}
   - component: {fileID: 3596684874490086890}
+  - component: {fileID: 2900055713115909749}
   m_Layer: 0
   m_Name: Magician
   m_TagString: Player
@@ -777,6 +778,7 @@ MonoBehaviour:
   observableSearch: 2
   ObservedComponents:
   - {fileID: 3596684874490086890}
+  - {fileID: 2900055713115909749}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
@@ -796,6 +798,27 @@ MonoBehaviour:
   m_SynchronizeRotation: 1
   m_SynchronizeScale: 0
   m_UseLocal: 1
+--- !u!114 &2900055713115909749
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3313946759752246840}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b8c4a61274f60b4ea5fb4299cfdbf14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowLayerWeightsInspector: 1
+  ShowParameterInspector: 1
+  m_SynchronizeParameters:
+  - Type: 4
+    SynchronizeType: 2
+    Name: IsWalking
+  m_SynchronizeLayers:
+  - SynchronizeType: 0
+    LayerIndex: 0
 --- !u!1 &3313946759759989019
 GameObject:
   m_ObjectHideFlags: 0

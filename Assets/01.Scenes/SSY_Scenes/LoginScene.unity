@@ -15294,7 +15294,7 @@ GameObject:
   - component: {fileID: 1483909238}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -15311,6 +15311,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fed17b42f721d403fa50f12a7f1fa8c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  damage: 5
 --- !u!4 &1483909239
 Transform:
   m_ObjectHideFlags: 0
@@ -21783,6 +21784,11 @@ PrefabInstance:
       propertyPath: m_Volume
       value: 0.71
       objectReference: {fileID: 0}
+    - target: {fileID: 7735584355776460721, guid: dfa28cb56132047bf9aae2bb10191af5,
+        type: 3}
+      propertyPath: m_audioClip
+      value: 
+      objectReference: {fileID: 8300000, guid: 6ac0e12b808ca1641972eb0d80af0400, type: 3}
     - target: {fileID: 7735584355776460722, guid: dfa28cb56132047bf9aae2bb10191af5,
         type: 3}
       propertyPath: m_Name

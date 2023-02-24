@@ -55,6 +55,15 @@ MonoBehaviour:
   - RPCPlayerReady
   - RPCTravel
   - RPCTravelCoroutine
+  - AddCharacterToList
+  - RPCSetTurn
+  - ChangeGameObjectName
+  - RPCTurnEnd
+  - SetCharacter
+  - TryMove
+  - AddUnit
+  - test
+  - RPCTimePass
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

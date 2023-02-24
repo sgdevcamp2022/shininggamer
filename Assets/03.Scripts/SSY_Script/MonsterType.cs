@@ -41,7 +41,7 @@ public class MonsterType
             _Damage=value;
         }
     }
-    public string Health{
+    public string HP{
         get{
             return _Health;
         }
@@ -55,6 +55,15 @@ public class MonsterType
         }   
         set{
             _Level=value;
+        }
+    }
+
+    public string Speed{
+        get{
+            return _Speed;
+        }   
+        set{
+            _Speed=value;
         }
     }
 }

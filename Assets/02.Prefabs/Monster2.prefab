@@ -11,6 +11,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Monster2
       objectReference: {fileID: 0}
+    - target: {fileID: 1774625739149480, guid: 38efdaadbfe1d624bbee439cb02e7661, type: 3}
+      propertyPath: m_TagString
+      value: Monster 2
+      objectReference: {fileID: 0}
     - target: {fileID: 4906828391645816, guid: 38efdaadbfe1d624bbee439cb02e7661, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -75,3 +79,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d025a08f53d4a4934a1ce2b2e59f1334, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  MonsterName: 
+  MonsterImg: {fileID: 0}

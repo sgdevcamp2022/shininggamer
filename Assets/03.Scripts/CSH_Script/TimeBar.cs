@@ -1,17 +1,20 @@
 using UnityEngine;
 using UnityEngine.UI;
+using Photon.Pun;
 
 public class TimeBar : MonoBehaviour
 {
     Image[] timeImages;
     [SerializeField] Image dayImagePrefab;
     [SerializeField] Image nightImagePrefab;
+    PhotonView pv;
 
     int timeBlock = 0;
     int dayNightCount = 0;
 
     void Awake()
     {
+        pv = GetComponent<PhotonView>();
         timeImages = new Image[15];
 
         for (int i = 0; i < 15; i++)
@@ -45,6 +48,12 @@ public class TimeBar : MonoBehaviour
     }
 
     public void TimePass()
+    {
+        pv.RPC("RPCTimePass", RpcTarget.All);
+    }
+
+    [PunRPC]
+    void RPCTimePass()
     {
         Destroy(transform.GetChild(0).gameObject);
 

@@ -4,16 +4,17 @@ using System.Collections;
 using System.IO;
 using UnityEngine.SceneManagement;
 using Photon.Pun;
+using Photon.Realtime;
 
 public class HexUnit : MonoBehaviourPunCallbacks
 {
-    public PhotonView pv;
-
     public static List<HexUnit> unitPrefab;
 
     List<HexCell> pathToTravel;
-    const float travelSpeed = 4f;
+    public float travelSpeed = 4f;
     const float rotationSpeed = 180f;
+
+    PhotonView pv;
 
     public HexCell Location
     {
@@ -86,14 +87,77 @@ public class HexUnit : MonoBehaviourPunCallbacks
     }
     int turn;
 
+    public bool IsMyTurn
+    {
+        get
+        {
+            return isMyTurn;
+        }
+        set
+        {
+            isMyTurn = value;
+        }
+    }
+    bool isMyTurn;
+
+    public bool IsMonsterEncount
+    {
+        get
+        {
+            return isMonsterEncount;
+        }
+        set
+        {
+            isMonsterEncount = value;
+        }
+    }
+    bool isMonsterEncount;
+
+    public Collider Monster
+    {
+        get
+        {
+            return monster;
+        }
+    }
+    Collider monster;
+
+    public HexUnit MonsterUnit
+    {
+        get
+        {
+            return monsterUnit;
+        }
+    }
+    HexUnit monsterUnit;
+
     public override void OnEnable()
     {
         if (location)
             transform.localPosition = location.Position;
+
+        pv = GetComponent<PhotonView>();
+
+        //int ownerId = 0;
+        //foreach (KeyValuePair<int, Player> player in PhotonNetwork.CurrentRoom.Players)
+        //{
+        //    if (PhotonNetwork.LocalPlayer.ActorNumber == player.Value.ActorNumber)
+        //    {
+        //        ownerId = PhotonNetwork.LocalPlayer.ActorNumber;
+        //        break;
+        //    }
+        //}
+        //pv.ViewID = PhotonNetwork.AllocateViewID(false);
     }
 
     public void Travel(List<HexCell> path)
     {
+        if(path == null)
+        {
+            Debug.Log("Path가 존재하지 않음");
+            return;
+        }
+
         Location = path[path.Count - 1];
         pathToTravel = path;
         pv.RPC("RPCTravelCoroutine", RpcTarget.All);
@@ -182,10 +246,25 @@ public class HexUnit : MonoBehaviourPunCallbacks
         orientation = transform.localRotation.eulerAngles.y;
     }
 
-    /*void OnTriggerEnter(Collider other)
+    void OnTriggerEnter(Collider other)
     {
-        SceneManager.LoadScene("KSH_FightScene");
-    }*/
+        try
+        {
+            if (other.tag.Substring(0, 7) == "Monster")
+            {
+                isMonsterEncount = true;
+                monster = other;
+            }
+            else if(other.tag.Substring(0, 6) == "Player")
+            {
+                monsterUnit = gameObject.GetComponent<HexUnit>();
+            }
+        }
+        catch
+        {}
+
+        return;
+    }
 
     public void ValidateLocation()
     {

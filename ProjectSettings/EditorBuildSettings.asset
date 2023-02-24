@@ -12,13 +12,12 @@ EditorBuildSettings:
     path: Assets/01.Scenes/LSH_Scenes/TitleScene.unity
     guid: 71182f5b3d1d3ca49a2d6efe3088c445
   - enabled: 1
+    path: Assets/01.Scenes/CSH_Scenes/TilemapScene.unity
+    guid: cfcebb035c60b824bb165ff407b9e4a1
+  - enabled: 1
+    path: Assets/01.Scenes/LSH_Scenes/TitleScene.unity
+    guid: 71182f5b3d1d3ca49a2d6efe3088c445
+  - enabled: 1
     path: Assets/01.Scenes/KSH_Scenes/KSH_FightScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
-  - enabled: 0
-    path: Assets/Photon/PhotonUnityNetworking/Demos/PunBasics-Tutorial/Scenes/PunBasics-Launcher.unity
-    guid: bff77b01b50254edbb6edeeaba5ae8b3
-  - enabled: 0
-    path: Assets/Photon/PhotonUnityNetworking/Demos/PunBasics-Tutorial/Scenes/PunBasics-Room
-      for 1.unity
-    guid: 9b8561c6e396849a5ba48c3eb9524049
   m_configObjects: {}

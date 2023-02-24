@@ -38,7 +38,6 @@ public class RoomManager : MonoBehaviour
             if (PhotonNetwork.CurrentRoom.Name == NetworkManager.roomList[i].Name)
             {
                 currentRoom = i;
-                print("∑Î ¿Œµ¶Ω∫: " + currentRoom);
                 break;
             }
         }

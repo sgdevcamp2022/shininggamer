@@ -46,11 +46,6 @@ public class HexMapEditor : MonoBehaviourPunCallbacks
         unitType = (int)type;
     }
 
-    void Start()
-    {
-        Load();    
-    }
-
     void Update()
     {
         if (!EventSystem.current.IsPointerOverGameObject())
@@ -136,11 +131,24 @@ public class HexMapEditor : MonoBehaviourPunCallbacks
             hexGrid.RemoveUnit(cell.Unit);
     }
 
+    public void DestroyUnit(HexUnit unit)
+    {
+        hexGrid.RemoveUnit(unit);
+    }
+
     public void Save()
     {
         //pv.RPC("OnSave", RpcTarget.All);
         string path = Path.Combine(Application.persistentDataPath, "test.map");
+        using (BinaryWriter writer = new BinaryWriter(File.Open(path, FileMode.Create)))
+        {
+            hexGrid.Save(writer);
+        }
+    }
 
+    public void SaveAfterFight()
+    {
+        string path = Path.Combine(Application.persistentDataPath, "updated.map");
         using (BinaryWriter writer = new BinaryWriter(File.Open(path, FileMode.Create)))
         {
             hexGrid.Save(writer);
@@ -158,6 +166,15 @@ public class HexMapEditor : MonoBehaviourPunCallbacks
         //pv.RPC("OnLoad", RpcTarget.All);
 
         string path = Path.Combine(Application.persistentDataPath, "test.map");
+        using (BinaryReader reader = new BinaryReader(File.OpenRead(path)))
+        {
+            hexGrid.Load(reader);
+        }
+    }
+
+    public void LoadAfterFight()
+    {
+        string path = Path.Combine(Application.persistentDataPath, "updated.map");
         using (BinaryReader reader = new BinaryReader(File.OpenRead(path)))
         {
             hexGrid.Load(reader);

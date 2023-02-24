@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+
 public class CharacterType{
     string _CharacterName;
     string _Evasion;
@@ -14,8 +15,11 @@ public class CharacterType{
     string _Talent;
     string _Vitality;
     string _Intellect;
+    string _HP;
+    string _Exp;
+    string _Level;
 
-    public CharacterType(object name,object evasion,object luck,object magicdef, object physicaldef,object power,object rec,object speed, object talent, object vitality, object intellect){
+    public CharacterType(object name,object level,object exp, object health,object evasion,object luck,object magicdef, object physicaldef,object power,object rec,object speed, object talent, object vitality, object intellect){
         _CharacterName=name as string;
         _Evasion=evasion as string;
         _Luck=luck as string;
@@ -27,14 +31,62 @@ public class CharacterType{
         _Talent=talent as string;
         _Vitality=vitality as string;
         _Intellect=intellect as string;
+        _Level=level as string;
+        _Exp=exp as string;
+        _HP=health as string;
     }
 
+    public CharacterType(string name,string level,string exp, string health,string evasion,string luck,string magicdef, string physicaldef,string power,string rec,string speed, string talent, string vitality, string intellect){
+        _CharacterName=name as string;
+        _Evasion=evasion as string;
+        _Luck=luck as string;
+        _MagicDefense=magicdef as string;
+        _PhysicalDefense=physicaldef as string;
+        _Power=power as string;
+        _Recognition=rec as string;
+        _Speed=speed as string;
+        _Talent=talent as string;
+        _Vitality=vitality as string;
+        _Intellect=intellect as string;
+        _Level=level as string;
+        _Exp=exp as string;
+    }
     public string Name{
         set{
             _CharacterName=value;
         }
         get{
             return _CharacterName;
+        }
+    }
+
+    
+    public string Level{
+        set{
+            _Level=value;
+        }
+        get{
+            return _Level;
+        }
+    }
+
+    
+    public string HP{
+        set{
+            _HP=value;
+        }
+        get{
+            return _HP;
+        }
+    }
+
+    
+    public string Exp{
+        set{
+            _Exp=value;
+        }
+        get{
+            return _Exp;
         }
     }
 
